@@ -7,7 +7,7 @@ const DATA = {
     BULDINGS: 
         'https://raw.githubusercontent.com/dinohossain/pathfinding/master/data/buildings.json',
     NODES: 
-        'https://raw.githubusercontent.com/dinohossain/pathfinding/master/data/roads.json',
+        'https://raw.githubusercontent.com/dinohossain/pathfinding/master/data/nodes.json',
     TRIPS:
         'https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/trips/trips-v7.json'
 }
