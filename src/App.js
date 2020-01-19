@@ -13,7 +13,7 @@ const INITIAL_VIEW_STATE = {
   longitude: -74,
   latitude: 40.711,
   zoom: 13.5,
-  minZoom: 5,
+  minZoom: 4,
   maxZoom: 16,
   pitch: 0,
   bearing: 0
@@ -34,7 +34,7 @@ export default class App extends Component {
       }),
       {}
     ),
-    style: "mapbox://styles/mapbox/satellite-v9"
+    style: "mapbox://styles/mapbox/dark-v10"
   };
 
   componentDidMount() {
@@ -49,16 +49,16 @@ export default class App extends Component {
     //console.log(JSON.stringify(this.data[0]));
     for (let i in data[0]) {
       //console.log(new Array(data[0][i].lat, data[0][i].lon));
-
       nodes.push(new Array(data[0][i].lat, data[0][i].lon));
     }
+    console.log(`There are ${nodes.length} nodes`);
     this.setState({
       nodes
     });
   };
 
   _onHover({ x, y, object }) {
-    const label = "What happens when hover";
+    const label = "Click here to START!";
 
     this.setState({ hover: { x, y, hoveredObject: object, label } });
   }

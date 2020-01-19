@@ -24,10 +24,6 @@ const MAPBOX_DEFAULT_MAPSTYLES = [
   { label: "Dark", value: "mapbox://styles/mapbox/dark-v10" },
   { label: "Satellite", value: "mapbox://styles/mapbox/satellite-v9" },
   {
-    label: "Satellite Streets V10",
-    value: "mapbox://styles/mapbox/satellite-streets-v10"
-  },
-  {
     label: "Navigation Preview Day V4",
     value: "mapbox://styles/mapbox/navigation-preview-day-v4"
   },
