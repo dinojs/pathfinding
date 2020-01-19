@@ -7,13 +7,12 @@ import {
 } from "./components/controls";
 import { tooltipStyle } from "./components/style";
 import DeckGL from "deck.gl";
-import taxiData from "./data/taxi";
 import { renderLayers } from "./components/deckgl-layers";
 
 const INITIAL_VIEW_STATE = {
   longitude: -74,
-  latitude: 40.7,
-  zoom: 11,
+  latitude: 40.711,
+  zoom: 13.5,
   minZoom: 5,
   maxZoom: 16,
   pitch: 0,
@@ -27,7 +26,7 @@ export default class App extends Component {
       y: 0,
       hoveredObject: null
     },
-    points: [],
+    nodes: [],
     settings: Object.keys(SCATTERPLOT_CONTROLS).reduce(
       (accu, key) => ({
         ...accu,
@@ -35,7 +34,7 @@ export default class App extends Component {
       }),
       {}
     ),
-    style: "mapbox://styles/mapbox/light-v10"
+    style: "mapbox://styles/mapbox/satellite-v9"
   };
 
   componentDidMount() {
@@ -43,28 +42,23 @@ export default class App extends Component {
   }
 
   _processData = () => {
-    const points = taxiData.reduce((accu, curr) => {
-      accu.push({
-        position: [Number(curr.pickup_longitude), Number(curr.pickup_latitude)],
-        pickup: true
-      });
+    //Importing nodes
+    const data = require("./data/nodes.json");
+    const nodes = [];
 
-      accu.push({
-        position: [
-          Number(curr.dropoff_longitude),
-          Number(curr.dropoff_latitude)
-        ],
-        pickup: false
-      });
-      return accu;
-    }, []);
+    //console.log(JSON.stringify(this.data[0]));
+    for (let i in data[0]) {
+      //console.log(new Array(data[0][i].lat, data[0][i].lon));
+
+      nodes.push(new Array(data[0][i].lat, data[0][i].lon));
+    }
     this.setState({
-      points
+      nodes
     });
   };
 
   _onHover({ x, y, object }) {
-    const label = object ? (object.pickup ? "Pickup" : "Dropoff") : null;
+    const label = "What happens when hover";
 
     this.setState({ hover: { x, y, hoveredObject: object, label } });
   }
@@ -78,7 +72,7 @@ export default class App extends Component {
   }
 
   render() {
-    const data = this.state.points;
+    const data = this.state.nodes;
     if (!data.length) {
       return null;
     }
@@ -106,7 +100,7 @@ export default class App extends Component {
         />
         <DeckGL
           layers={renderLayers({
-            data: this.state.points,
+            data: this.state.nodes,
             onHover: hover => this._onHover(hover),
             settings: this.state.settings
           })}

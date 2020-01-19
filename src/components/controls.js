@@ -10,7 +10,7 @@ export const SCATTERPLOT_CONTROLS = {
   radiusScale: {
     displayName: "Scatterplot Radius",
     type: "range",
-    value: 2,
+    value: 0.6,
     step: 10,
     min: 10,
     max: 10
@@ -22,7 +22,7 @@ const MAPBOX_DEFAULT_MAPSTYLES = [
   { label: "Outdoors", value: "mapbox://styles/mapbox/outdoors-v10" },
   { label: "Light", value: "mapbox://styles/mapbox/light-v10" },
   { label: "Dark", value: "mapbox://styles/mapbox/dark-v10" },
-  { label: "Satellite", value: "mapbox://styles/mapbox/satellite-v10" },
+  { label: "Satellite", value: "mapbox://styles/mapbox/satellite-v9" },
   {
     label: "Satellite Streets V10",
     value: "mapbox://styles/mapbox/satellite-streets-v10"

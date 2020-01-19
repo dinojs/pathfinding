@@ -1,7 +1,6 @@
 import { ScatterplotLayer } from "deck.gl";
-
-const PICKUP_COLOR = [0, 128, 255];
-const DROPOFF_COLOR = [255, 0, 128];
+// const DATA_URL =
+//   "https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/scatterplot/manhattan.json";
 
 export function renderLayers(props) {
   const { data, onHover, settings } = props;
@@ -9,8 +8,9 @@ export function renderLayers(props) {
     settings.showScatterplot &&
       new ScatterplotLayer({
         id: "scatterplot",
-        getPosition: d => d.position,
-        getColor: d => (d.pickup ? PICKUP_COLOR : DROPOFF_COLOR),
+        //Format array [x,y,z]
+        getPosition: d => [d[1], d[0]],
+        getFillColor: [0, 128, 255],
         getRadius: d => 5,
         opacity: 0.5,
         pickable: true,
@@ -22,3 +22,5 @@ export function renderLayers(props) {
       })
   ];
 }
+
+//function that when called accesses JSON and returns only key value needed into an array
