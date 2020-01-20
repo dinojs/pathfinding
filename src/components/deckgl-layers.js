@@ -52,7 +52,7 @@ export function renderLayers(props) {
       new ScatterplotLayer({
         id: "scatterplot",
         //Format array [x,y,z]
-        getPosition: d => [d[1], d[0]],
+        getPosition: d => [d[1], d[2]],
         getFillColor: [0, 128, 255],
         getRadius: d => 5,
         opacity: 0.5,
