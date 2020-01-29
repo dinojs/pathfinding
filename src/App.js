@@ -43,16 +43,16 @@ export default class App extends Component {
 
   _processData = () => {
     //Importing nodes
-    const data = require("./data/nodes1.json");
+    const data = require("./data/nodes.json");
     const nodes = [];
     //const string = JSON.stringify(data[0]);
     for (let i in data[0]) {
-      nodes.push(new Array(i, data[0][i].lon, data[0][i].lat));
+      nodes.push(new Array(i, data[0][i].lon, data[0][i].lat, data[0][i].adj));
     }
     console.log(`There are ${nodes.length} nodes`);
     //console.log(data[0][4777888]);
 
-    console.log(nodes);
+    console.log(nodes[[1]]);
     this.setState({
       nodes
     });
@@ -110,9 +110,9 @@ export default class App extends Component {
         >
           <StaticMap
             mapStyle={this.state.style}
-            // //mapboxApiAccessToken={
-            //   "pk.eyJ1IjoiZGlub2pzIiwiYSI6ImNrMXIybWIzZTAwdXozbnBrZzlnOWNidzkifQ.Zs9R8K81ZSvVVizvzAXmfg"
-            // }
+          // mapboxApiAccessToken={
+          //   "pk.eyJ1IjoiZGlub2pzIiwiYSI6ImNrMXIybWIzZTAwdXozbnBrZzlnOWNidzkifQ.Zs9R8K81ZSvVVizvzAXmfg"
+          //}
           />
         </DeckGL>
       </div>
