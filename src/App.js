@@ -38,25 +38,61 @@ export default class App extends Component {
   };
 
   componentDidMount() {
-    this._processData();
+    //this._processData();
+    this.bfs();
   }
 
   _processData = () => {
     //Importing nodes
-    const data = require("./data/nodes1.json");
-    const nodes = [];
-    //const string = JSON.stringify(data[0]);
-    for (let i in data[0]) {
-      nodes.push(new Array(i, data[0][i].lon, data[0][i].lat));
-    }
-    console.log(`There are ${nodes.length} nodes`);
+    // const data = require("./data/nodes.json");
+    // const nodes = [];
+    // //const string = JSON.stringify(data[0]);
+    // for (let i in data[0]) {
+    //   nodes.push(new Array(i, data[0][i].lon, data[0][i].lat));
+    // }
+    //console.log(`There are ${nodes.length} nodes`);
+    //const adjNodes = data[0][30979260].adj;
+    // this.setState({
+    //   nodes
+    // });
+  };
+  //////////////////////////////////
+  bfs = (start = "33583379", end = "7045863608") => {
+    const data = require("./data/nodes.json");
+    const frontier = [start];
+    let came_from = {};
+    //To reconstruct the path
+    came_from[start] = null;
+    let current, adjNodes;
 
-    console.log(nodes);
-    this.setState({
-      nodes
-    });
+    while (frontier.length) {
+      //removes the first item of an array
+      current = frontier.shift();
+      adjNodes = data[0][current].adj;
+
+      if (current === end) {
+        current = end;
+        let path = [];
+        while (current !== start) {
+          path.push(current);
+          current = came_from[current];
+        }
+        path.push(start);
+        path.reverse();
+        console.log(path);
+        break;
+      }
+
+      for (let next of adjNodes) {
+        if (!Object.keys(came_from).includes(next)) {
+          frontier.push(next);
+          came_from[next] = current;
+        }
+      }
+    }
   };
 
+  ////////////////////////////////////////
   _onHover({ x, y, object }) {
     const label = `Node ${object}`;
 
@@ -111,7 +147,7 @@ export default class App extends Component {
             mapStyle={this.state.style}
             // mapboxApiAccessToken={
             //   "pk.eyJ1IjoiZGlub2pzIiwiYSI6ImNrMXIybWIzZTAwdXozbnBrZzlnOWNidzkifQ.Zs9R8K81ZSvVVizvzAXmfg"
-            // }
+            //}
           />
         </DeckGL>
       </div>
