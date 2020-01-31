@@ -40,6 +40,7 @@ const landCover = [
 ];
 
 export function renderLayers(props) {
+  //Distructuring arguments
   const {
     data,
     onHover,

@@ -50,7 +50,6 @@ export default class App extends Component {
       nodes.push(new Array(i, data[0][i].lon, data[0][i].lat));
     }
     console.log(`There are ${nodes.length} nodes`);
-    //console.log(data[0][4777888]);
 
     console.log(nodes);
     this.setState({
@@ -110,7 +109,7 @@ export default class App extends Component {
         >
           <StaticMap
             mapStyle={this.state.style}
-            // //mapboxApiAccessToken={
+            // mapboxApiAccessToken={
             //   "pk.eyJ1IjoiZGlub2pzIiwiYSI6ImNrMXIybWIzZTAwdXozbnBrZzlnOWNidzkifQ.Zs9R8K81ZSvVVizvzAXmfg"
             // }
           />
