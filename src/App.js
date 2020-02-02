@@ -26,7 +26,8 @@ export default class App extends Component {
       y: 0,
       hoveredObject: null
     },
-    nodes: [],
+
+    path: [],
     settings: Object.keys(SCATTERPLOT_CONTROLS).reduce(
       (accu, key) => ({
         ...accu,
@@ -38,27 +39,49 @@ export default class App extends Component {
   };
 
   componentDidMount() {
-    //this._processData();
-    this.bfs();
+    this.processData();
   }
 
-  _processData = () => {
+  processData = () => {
     //Importing nodes
-    // const data = require("./data/nodes.json");
-    // const nodes = [];
-    // //const string = JSON.stringify(data[0]);
+    const data = require("./data/nodes.json");
+
+    //const nodes = [];
+    // const string = JSON.stringify(data[0]);
     // for (let i in data[0]) {
     //   nodes.push(new Array(i, data[0][i].lon, data[0][i].lat));
     // }
+    this.bfs(data);
     //console.log(`There are ${nodes.length} nodes`);
-    //const adjNodes = data[0][30979260].adj;
     // this.setState({
     //   nodes
     // });
   };
   //////////////////////////////////
-  bfs = (start = "33583379", end = "7045863608") => {
-    const data = require("./data/nodes.json");
+  recustructPath = (data, start, end, came_from) => {
+    let current = end;
+    let backwards = [];
+    let path = [];
+    while (current !== start) {
+      backwards.push(current);
+      current = came_from[current];
+    }
+    backwards.push(start);
+    backwards.reverse();
+    console.log(`Path length ${backwards.length}`);
+    for (let i of backwards) {
+      path.push(new Array(data[0][i].lon, data[0][i].lat));
+    }
+    this.setState({
+      path
+    });
+  };
+
+  noPath = () => {
+    console.log("Path not found");
+  };
+
+  bfs = (data, start = "33583379", end = "2052618391") => {
     const frontier = [start];
     let came_from = {};
     //To reconstruct the path
@@ -71,15 +94,8 @@ export default class App extends Component {
       adjNodes = data[0][current].adj;
 
       if (current === end) {
-        current = end;
-        let path = [];
-        while (current !== start) {
-          path.push(current);
-          current = came_from[current];
-        }
-        path.push(start);
-        path.reverse();
-        console.log(path);
+        console.log(`Visited: ${Object.keys(came_from).length} nodes`);
+        this.recustructPath(data, start, end, came_from);
         break;
       }
 
@@ -90,7 +106,10 @@ export default class App extends Component {
         }
       }
     }
+    this.noPath();
   };
+
+  dfs = () => {};
 
   ////////////////////////////////////////
   _onHover({ x, y, object }) {
@@ -98,6 +117,7 @@ export default class App extends Component {
 
     this.setState({ hover: { x, y, hoveredObject: object, label } });
   }
+  // _onClick({ x, y, object }) {}
 
   onStyleChange = style => {
     this.setState({ style });
@@ -108,7 +128,7 @@ export default class App extends Component {
   }
 
   render() {
-    const data = this.state.nodes;
+    const data = this.state.path;
     if (!data.length) {
       return null;
     }
@@ -136,8 +156,9 @@ export default class App extends Component {
         />
         <DeckGL
           layers={renderLayers({
-            data: this.state.nodes,
+            data: this.state.path,
             onHover: hover => this._onHover(hover),
+            // onClick: click => this._onClick(click),
             settings: this.state.settings
           })}
           initialViewState={INITIAL_VIEW_STATE}
@@ -147,7 +168,7 @@ export default class App extends Component {
             mapStyle={this.state.style}
             // mapboxApiAccessToken={
             //   "pk.eyJ1IjoiZGlub2pzIiwiYSI6ImNrMXIybWIzZTAwdXozbnBrZzlnOWNidzkifQ.Zs9R8K81ZSvVVizvzAXmfg"
-            //}
+            // }
           />
         </DeckGL>
       </div>
