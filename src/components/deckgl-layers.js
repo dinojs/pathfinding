@@ -88,9 +88,9 @@ export function renderLayers(props) {
     //   new TripsLayer({
     //     id: "trips",
     //     data: trips,
-    //     getPath: d => d.path,
+    //     getPath: d => [d[1], d[2]],
     //     getTimestamps: d => d.timestamps,
-    //     getColor: d => (d.vendor === 0 ? theme.trailColor0 : theme.trailColor1),
+    //     getColor: d => [0, 128, 255],
     //     opacity: 0.3,
     //     widthMinPixels: 2,
     //     rounded: true,

@@ -64,7 +64,7 @@ export default class App extends Component {
     let path = [];
     while (current !== start) {
       backwards.push(current);
-      current = came_from[current];
+      current = came_from.get(current);
     }
     backwards.push(start);
     backwards.reverse();
@@ -81,12 +81,13 @@ export default class App extends Component {
     console.log("Path not found");
   };
 
-  bfs = (data, start = "33583379", end = "1701898681") => {
+  bfs = (data, start = "1659428496", end = "3874650177") => {
     let starttime, endtime;
     starttime = new Date();
     for (let i = 0; i < 1000; i++) {
       Math.sqrt(i);
     }
+    let graph = data[0];
     let currentFrontier = [start];
     let nextFrontier = [];
     let came_from = new Map();
@@ -97,28 +98,25 @@ export default class App extends Component {
     while (currentFrontier.length || nextFrontier.length) {
       //removes the first item of an array
       if (!currentFrontier.length) {
-        currentFrontier = nextFrontier;
-        nextFrontier = [];
+        [currentFrontier, nextFrontier] = [nextFrontier, currentFrontier];
       }
 
       current = currentFrontier.pop();
-      adjNodes = data[0][current].adj;
+      adjNodes = graph[current].adj;
 
       if (current === end) {
-        console.log(`Visited: ${Object.keys(came_from).length} nodes`);
+        console.log(`Visited: ${came_from.size} nodes`);
         this.recustructPath(data, start, end, came_from);
         endtime = new Date();
 
-        console.log(
-          `Operation took ${endtime.getTime() - starttime.getTime()} ms`
-        );
+        console.log(`Run time: ${endtime.getTime() - starttime.getTime()} ms`);
         break;
       }
 
       for (let next of adjNodes) {
-        if (!Object.keys(came_from).includes(next)) {
+        if (!came_from.has(next)) {
           nextFrontier.push(next);
-          came_from[next] = current;
+          came_from.set(next, current);
         }
       }
     }
@@ -181,9 +179,9 @@ export default class App extends Component {
         >
           <StaticMap
             mapStyle={this.state.style}
-            // mapboxApiAccessToken={
-            //   "pk.eyJ1IjoiZGlub2pzIiwiYSI6ImNrMXIybWIzZTAwdXozbnBrZzlnOWNidzkifQ.Zs9R8K81ZSvVVizvzAXmfg"
-            // }
+            mapboxApiAccessToken={
+              "pk.eyJ1IjoiZGlub2pzIiwiYSI6ImNrMXIybWIzZTAwdXozbnBrZzlnOWNidzkifQ.Zs9R8K81ZSvVVizvzAXmfg"
+            }
           />
         </DeckGL>
       </div>
