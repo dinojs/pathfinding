@@ -70,7 +70,7 @@ export default class App extends Component {
     backwards.reverse();
     console.log(`Path length ${backwards.length}`);
     for (let i of backwards) {
-      path.push(new Array(data[0][i].lon, data[0][i].lat));
+      path.push(new Array(i, data[0][i].lon, data[0][i].lat));
     }
     this.setState({
       path
@@ -81,32 +81,47 @@ export default class App extends Component {
     console.log("Path not found");
   };
 
-  bfs = (data, start = "33583379", end = "2052618391") => {
-    const frontier = [start];
-    let came_from = {};
+  bfs = (data, start = "33583379", end = "1701898681") => {
+    let starttime, endtime;
+    starttime = new Date();
+    for (let i = 0; i < 1000; i++) {
+      Math.sqrt(i);
+    }
+    let currentFrontier = [start];
+    let nextFrontier = [];
+    let came_from = new Map();
     //To reconstruct the path
-    came_from[start] = null;
+    //came_from.set(start, NaN);
     let current, adjNodes;
 
-    while (frontier.length) {
+    while (currentFrontier.length || nextFrontier.length) {
       //removes the first item of an array
-      current = frontier.shift();
+      if (!currentFrontier.length) {
+        currentFrontier = nextFrontier;
+        nextFrontier = [];
+      }
+
+      current = currentFrontier.pop();
       adjNodes = data[0][current].adj;
 
       if (current === end) {
         console.log(`Visited: ${Object.keys(came_from).length} nodes`);
         this.recustructPath(data, start, end, came_from);
+        endtime = new Date();
+
+        console.log(
+          `Operation took ${endtime.getTime() - starttime.getTime()} ms`
+        );
         break;
       }
 
       for (let next of adjNodes) {
         if (!Object.keys(came_from).includes(next)) {
-          frontier.push(next);
+          nextFrontier.push(next);
           came_from[next] = current;
         }
       }
     }
-    this.noPath();
   };
 
   dfs = () => {};

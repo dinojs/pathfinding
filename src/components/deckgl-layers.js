@@ -1,4 +1,4 @@
-import { ScatterplotLayer } from "deck.gl";
+import { ScatterplotLayer, TripsLayer } from "deck.gl";
 import { PolygonLayer } from "@deck.gl/layers";
 import { AmbientLight, PointLight, LightingEffect } from "@deck.gl/core";
 const URL =
@@ -53,7 +53,7 @@ export function renderLayers(props) {
       new ScatterplotLayer({
         id: "scatterplot",
         //Format array [x,y,z]
-        getPosition: d => [d[0], d[1]],
+        getPosition: d => [d[1], d[2]],
         getFillColor: [0, 128, 255],
         getRadius: d => 5,
         opacity: 1, //Put 0 for invisable
@@ -84,5 +84,20 @@ export function renderLayers(props) {
       getFillColor: theme.buildingColor,
       material: theme.material
     })
+
+    //   new TripsLayer({
+    //     id: "trips",
+    //     data: trips,
+    //     getPath: d => d.path,
+    //     getTimestamps: d => d.timestamps,
+    //     getColor: d => (d.vendor === 0 ? theme.trailColor0 : theme.trailColor1),
+    //     opacity: 0.3,
+    //     widthMinPixels: 2,
+    //     rounded: true,
+    //     trailLength,
+    //     currentTime: this.state.time,
+
+    //     shadowEnabled: false
+    //   })
   ];
 }
