@@ -51,14 +51,14 @@ export default class App extends Component {
     // for (let i in data[0]) {
     //   nodes.push(new Array(i, data[0][i].lon, data[0][i].lat));
     // }
-    this.bfs(data);
+    this.dfs(data);
     //console.log(`There are ${nodes.length} nodes`);
     // this.setState({
     //   nodes
     // });
   };
   //////////////////////////////////
-  recustructPath = (data, start, end, came_from) => {
+  recustructPath = (graph, start, end, came_from) => {
     let current = end;
     let backwards = [];
     let path = [];
@@ -70,7 +70,7 @@ export default class App extends Component {
     backwards.reverse();
     console.log(`Path length ${backwards.length}`);
     for (let i of backwards) {
-      path.push(new Array(i, data[0][i].lon, data[0][i].lat));
+      path.push(new Array(i, graph[i].lon, graph[i].lat));
     }
     this.setState({
       path
@@ -81,7 +81,7 @@ export default class App extends Component {
     console.log("Path not found");
   };
 
-  bfs = (data, start = "1659428496", end = "3874650177") => {
+  bfs = (data, start = "1659428496", end = "4985377344") => {
     let starttime, endtime;
     starttime = new Date();
     for (let i = 0; i < 1000; i++) {
@@ -92,12 +92,11 @@ export default class App extends Component {
     let nextFrontier = [];
     let came_from = new Map();
     //To reconstruct the path
-    //came_from.set(start, NaN);
     let current, adjNodes;
 
     while (currentFrontier.length || nextFrontier.length) {
-      //removes the first item of an array
       if (!currentFrontier.length) {
+        //Swap
         [currentFrontier, nextFrontier] = [nextFrontier, currentFrontier];
       }
 
@@ -106,10 +105,11 @@ export default class App extends Component {
 
       if (current === end) {
         console.log(`Visited: ${came_from.size} nodes`);
-        this.recustructPath(data, start, end, came_from);
+        this.recustructPath(graph, start, end, came_from);
         endtime = new Date();
 
         console.log(`Run time: ${endtime.getTime() - starttime.getTime()} ms`);
+
         break;
       }
 
@@ -122,7 +122,53 @@ export default class App extends Component {
     }
   };
 
-  dfs = () => {};
+  dfs = (data, start = "1659428496", end = "4985377344") => {
+    let starttime, endtime;
+    starttime = new Date();
+    for (let i = 0; i < 1000; i++) {
+      Math.sqrt(i);
+    }
+    const graph = data[0];
+    let stack = [start];
+    let frontier = [];
+    let came_from = new Map();
+    let current;
+
+    while (stack.length) {
+      current = stack.pop();
+      frontier.push(current);
+
+      if (current === end) {
+        console.log(`Visited: ${frontier.length} nodes`);
+        endtime = new Date();
+        console.log(`Run time: ${endtime.getTime() - starttime.getTime()} ms`);
+        let backwards = [];
+        let path = [];
+        while (current !== start) {
+          backwards.push(current);
+          current = came_from.get(current);
+        }
+        backwards.push(start);
+        backwards.reverse();
+        console.log(`Path length ${backwards.length}`);
+
+        for (let i of backwards) {
+          path.push(new Array(i, graph[i].lon, graph[i].lat));
+        }
+        this.setState({
+          path
+        });
+        break;
+      }
+
+      graph[current].adj
+        .filter(next => !frontier.includes(next))
+        .forEach(next => {
+          stack.push(next);
+          came_from.set(next, current);
+        });
+    }
+  };
 
   ////////////////////////////////////////
   _onHover({ x, y, object }) {
@@ -179,9 +225,9 @@ export default class App extends Component {
         >
           <StaticMap
             mapStyle={this.state.style}
-            mapboxApiAccessToken={
-              "pk.eyJ1IjoiZGlub2pzIiwiYSI6ImNrMXIybWIzZTAwdXozbnBrZzlnOWNidzkifQ.Zs9R8K81ZSvVVizvzAXmfg"
-            }
+            // mapboxApiAccessToken={
+            //   "pk.eyJ1IjoiZGlub2pzIiwiYSI6ImNrMXIybWIzZTAwdXozbnBrZzlnOWNidzkifQ.Zs9R8K81ZSvVVizvzAXmfg"
+            // }
           />
         </DeckGL>
       </div>
