@@ -45,13 +45,14 @@ export default class App extends Component {
   processData = () => {
     //Importing nodes
     const data = require("./data/nodes.json");
+    const graph = data[0];
 
     //const nodes = [];
     // const string = JSON.stringify(data[0]);
     // for (let i in data[0]) {
     //   nodes.push(new Array(i, data[0][i].lon, data[0][i].lat));
     // }
-    this.dfs(data);
+    this.dfs(graph);
     //console.log(`There are ${nodes.length} nodes`);
     // this.setState({
     //   nodes
@@ -62,6 +63,7 @@ export default class App extends Component {
     let current = end;
     let backwards = [];
     let path = [];
+    console.log(`Visited: ${came_from.size} nodes`);
     while (current !== start) {
       backwards.push(current);
       current = came_from.get(current);
@@ -81,13 +83,8 @@ export default class App extends Component {
     console.log("Path not found");
   };
 
-  bfs = (data, start = "1659428496", end = "4985377344") => {
-    let starttime, endtime;
-    starttime = new Date();
-    for (let i = 0; i < 1000; i++) {
-      Math.sqrt(i);
-    }
-    let graph = data[0];
+  bfs = (graph, start = "1659428496", end = "4985377344") => {
+    const timer = Date.now();
     let currentFrontier = [start];
     let nextFrontier = [];
     let came_from = new Map();
@@ -104,12 +101,8 @@ export default class App extends Component {
       adjNodes = graph[current].adj;
 
       if (current === end) {
-        console.log(`Visited: ${came_from.size} nodes`);
         this.recustructPath(graph, start, end, came_from);
-        endtime = new Date();
-
-        console.log(`Run time: ${endtime.getTime() - starttime.getTime()} ms`);
-
+        console.log(`Run time: ${Date.now() - timer} ms`);
         break;
       }
 
@@ -122,13 +115,8 @@ export default class App extends Component {
     }
   };
 
-  dfs = (data, start = "1659428496", end = "4985377344") => {
-    let starttime, endtime;
-    starttime = new Date();
-    for (let i = 0; i < 1000; i++) {
-      Math.sqrt(i);
-    }
-    const graph = data[0];
+  dfs = (graph, start = "1659428496", end = "4985377344") => {
+    const timer = Date.now();
     let stack = [start];
     let frontier = [];
     let came_from = new Map();
@@ -139,25 +127,8 @@ export default class App extends Component {
       frontier.push(current);
 
       if (current === end) {
-        console.log(`Visited: ${frontier.length} nodes`);
-        endtime = new Date();
-        console.log(`Run time: ${endtime.getTime() - starttime.getTime()} ms`);
-        let backwards = [];
-        let path = [];
-        while (current !== start) {
-          backwards.push(current);
-          current = came_from.get(current);
-        }
-        backwards.push(start);
-        backwards.reverse();
-        console.log(`Path length ${backwards.length}`);
-
-        for (let i of backwards) {
-          path.push(new Array(i, graph[i].lon, graph[i].lat));
-        }
-        this.setState({
-          path
-        });
+        this.recustructPath(graph, start, end, came_from);
+        console.log(`Run time: ${Date.now() - timer} ms`);
         break;
       }
 
