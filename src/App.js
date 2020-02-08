@@ -8,6 +8,7 @@ import {
 import { tooltipStyle } from "./components/style";
 import DeckGL from "deck.gl";
 import { renderLayers } from "./components/deckgl-layers";
+import Algorithms from "./components/algorithm";
 
 const INITIAL_VIEW_STATE = {
   longitude: -74,
@@ -27,7 +28,7 @@ export default class App extends Component {
       hoveredObject: null
     },
 
-    path: [],
+    nodes: [],
     settings: Object.keys(SCATTERPLOT_CONTROLS).reduce(
       (accu, key) => ({
         ...accu,
@@ -43,20 +44,20 @@ export default class App extends Component {
   }
 
   processData = () => {
-    //Importing nodes
     const data = require("./data/nodes.json");
     const graph = data[0];
 
-    //const nodes = [];
-    // const string = JSON.stringify(data[0]);
-    // for (let i in data[0]) {
-    //   nodes.push(new Array(i, data[0][i].lon, data[0][i].lat));
-    // }
-    this.dfs(graph);
-    //console.log(`There are ${nodes.length} nodes`);
-    // this.setState({
-    //   nodes
-    // });
+    const nodes = [];
+    //const string = JSON.stringify(data[0]);
+    for (let i in graph) {
+      nodes.push(new Array(i, graph[i].lon, graph[i].lat));
+    }
+
+    console.log(`There are ${nodes.length} nodes`);
+    this.setState({
+      nodes
+    });
+    //this.dfs(graph);
   };
   //////////////////////////////////
   recustructPath = (graph, start, end, came_from) => {
@@ -83,6 +84,16 @@ export default class App extends Component {
     console.log("Path not found");
   };
 
+  displayNode = (current, came_from, graph) => {
+    let path = [];
+    setTimeout(() => {
+      path.push(new Array(current, graph[current].lon, graph[current].lat));
+      this.setState({
+        path
+      });
+    }, 5000);
+  };
+
   bfs = (graph, start = "1659428496", end = "4985377344") => {
     const timer = Date.now();
     let currentFrontier = [start];
@@ -99,6 +110,8 @@ export default class App extends Component {
 
       current = currentFrontier.pop();
       adjNodes = graph[current].adj;
+
+      this.displayNode(current, came_from, graph);
 
       if (current === end) {
         this.recustructPath(graph, start, end, came_from);
@@ -125,6 +138,9 @@ export default class App extends Component {
     while (stack.length) {
       current = stack.pop();
       frontier.push(current);
+
+      //Display node
+      this.displayNode(current, came_from, graph);
 
       if (current === end) {
         this.recustructPath(graph, start, end, came_from);
@@ -158,7 +174,7 @@ export default class App extends Component {
   }
 
   render() {
-    const data = this.state.path;
+    const data = this.state.nodes;
     if (!data.length) {
       return null;
     }
@@ -186,7 +202,7 @@ export default class App extends Component {
         />
         <DeckGL
           layers={renderLayers({
-            data: this.state.path,
+            data: this.state.nodes,
             onHover: hover => this._onHover(hover),
             // onClick: click => this._onClick(click),
             settings: this.state.settings
