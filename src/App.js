@@ -48,22 +48,34 @@ export default class App extends Component {
     const graph = data[0];
 
     const nodes = [];
+
+    // const points = data.reduce((accu, curr) => {
+    //   console.log(curr);
+    //   accu.push({
+    //     position: [Number(curr.lon), Number(curr.lat)],
+    //     visited: false
+    //   });
+
+    //   return accu;
+    // }, []);
+
     //const string = JSON.stringify(data[0]);
     for (let i in graph) {
       nodes.push(new Array(i, graph[i].lon, graph[i].lat));
     }
 
-    console.log(`There are ${nodes.length} nodes`);
     this.setState({
       nodes
     });
-    //this.dfs(graph);
+    setTimeout(() => {
+      this.bfs(graph);
+    }, 1500);
   };
   //////////////////////////////////
   recustructPath = (graph, start, end, came_from) => {
     let current = end;
     let backwards = [];
-    let path = [];
+    let nodes = [];
     console.log(`Visited: ${came_from.size} nodes`);
     while (current !== start) {
       backwards.push(current);
@@ -73,25 +85,15 @@ export default class App extends Component {
     backwards.reverse();
     console.log(`Path length ${backwards.length}`);
     for (let i of backwards) {
-      path.push(new Array(i, graph[i].lon, graph[i].lat));
+      nodes.push(new Array(i, graph[i].lon, graph[i].lat));
     }
     this.setState({
-      path
+      nodes
     });
   };
 
   noPath = () => {
     console.log("Path not found");
-  };
-
-  displayNode = (current, came_from, graph) => {
-    let path = [];
-    setTimeout(() => {
-      path.push(new Array(current, graph[current].lon, graph[current].lat));
-      this.setState({
-        path
-      });
-    }, 5000);
   };
 
   bfs = (graph, start = "1659428496", end = "4985377344") => {
@@ -101,6 +103,7 @@ export default class App extends Component {
     let came_from = new Map();
     //To reconstruct the path
     let current, adjNodes;
+    let nodes = [];
 
     while (currentFrontier.length || nextFrontier.length) {
       if (!currentFrontier.length) {
@@ -111,10 +114,13 @@ export default class App extends Component {
       current = currentFrontier.pop();
       adjNodes = graph[current].adj;
 
-      this.displayNode(current, came_from, graph);
+      this.displayNode(current, graph, nodes);
 
       if (current === end) {
-        this.recustructPath(graph, start, end, came_from);
+        setTimeout(() => {
+          this.recustructPath(graph, start, end, came_from);
+        }, 2500);
+
         console.log(`Run time: ${Date.now() - timer} ms`);
         break;
       }
@@ -127,6 +133,11 @@ export default class App extends Component {
       }
     }
   };
+  displayNode = (current, graph, nodes) => {
+    this.setState({ nodes }, () =>
+      nodes.push(new Array(current, graph[current].lon, graph[current].lat))
+    );
+  };
 
   dfs = (graph, start = "1659428496", end = "4985377344") => {
     const timer = Date.now();
@@ -134,16 +145,20 @@ export default class App extends Component {
     let frontier = [];
     let came_from = new Map();
     let current;
+    let nodes = [];
 
     while (stack.length) {
       current = stack.pop();
       frontier.push(current);
 
       //Display node
-      this.displayNode(current, came_from, graph);
+
+      this.displayNode(current, graph, nodes);
 
       if (current === end) {
-        this.recustructPath(graph, start, end, came_from);
+        setTimeout(() => {
+          this.recustructPath(graph, start, end, came_from);
+        }, 2500);
         console.log(`Run time: ${Date.now() - timer} ms`);
         break;
       }
@@ -211,10 +226,10 @@ export default class App extends Component {
           controller
         >
           <StaticMap
-            mapStyle={this.state.style}
-            // mapboxApiAccessToken={
-            //   "pk.eyJ1IjoiZGlub2pzIiwiYSI6ImNrMXIybWIzZTAwdXozbnBrZzlnOWNidzkifQ.Zs9R8K81ZSvVVizvzAXmfg"
-            // }
+          // mapStyle={this.state.style}
+          // mapboxApiAccessToken={
+          //   "pk.eyJ1IjoiZGlub2pzIiwiYSI6ImNrMXIybWIzZTAwdXozbnBrZzlnOWNidzkifQ.Zs9R8K81ZSvVVizvzAXmfg"
+          // }
           />
         </DeckGL>
       </div>
