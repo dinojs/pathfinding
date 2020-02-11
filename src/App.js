@@ -47,29 +47,27 @@ export default class App extends Component {
     const data = require("./data/nodes.json");
     const graph = data[0];
 
-    const nodes = [];
-
+    //const nodes = [];
     // const points = data.reduce((accu, curr) => {
     //   console.log(curr);
     //   accu.push({
     //     position: [Number(curr.lon), Number(curr.lat)],
     //     visited: false
     //   });
-
     //   return accu;
     // }, []);
 
     //const string = JSON.stringify(data[0]);
-    for (let i in graph) {
-      nodes.push(new Array(i, graph[i].lon, graph[i].lat));
-    }
+    // for (let i in graph) {
+    //   nodes.push(new Array(i, graph[i].lon, graph[i].lat));
+    // }
 
-    this.setState({
-      nodes
-    });
+    // this.setState({
+    //   nodes
+    // });
     setTimeout(() => {
-      this.bfs(graph);
-    }, 1500);
+      this.dfs(graph);
+    }, 500);
   };
   //////////////////////////////////
   recustructPath = (graph, start, end, came_from) => {
@@ -90,10 +88,6 @@ export default class App extends Component {
     this.setState({
       nodes
     });
-  };
-
-  noPath = () => {
-    console.log("Path not found");
   };
 
   bfs = (graph, start = "1659428496", end = "4985377344") => {
@@ -121,7 +115,10 @@ export default class App extends Component {
           this.recustructPath(graph, start, end, came_from);
         }, 2500);
 
-        console.log(`Run time: ${Date.now() - timer} ms`);
+        console.log(
+          `%c Run time: ${Date.now() - timer} ms`,
+          "color: #fff; background-color:#6097D0; border-radius: 5px; padding: 2px"
+        );
         break;
       }
 
@@ -158,7 +155,7 @@ export default class App extends Component {
       if (current === end) {
         setTimeout(() => {
           this.recustructPath(graph, start, end, came_from);
-        }, 2500);
+        }, 3500);
         console.log(`Run time: ${Date.now() - timer} ms`);
         break;
       }
@@ -206,15 +203,13 @@ export default class App extends Component {
             <div>{hover.label}</div>
           </div>
         )}
-        <MapStylePicker
-          onStyleChange={this.onStyleChange}
-          currentStyle={this.state.style}
-        />
+
         <LayerControls
           settings={this.state.settings}
           propTypes={SCATTERPLOT_CONTROLS}
           onChange={settings => this._updateLayerSettings(settings)}
         />
+
         <DeckGL
           layers={renderLayers({
             data: this.state.nodes,
@@ -226,12 +221,25 @@ export default class App extends Component {
           controller
         >
           <StaticMap
-          // mapStyle={this.state.style}
-          // mapboxApiAccessToken={
-          //   "pk.eyJ1IjoiZGlub2pzIiwiYSI6ImNrMXIybWIzZTAwdXozbnBrZzlnOWNidzkifQ.Zs9R8K81ZSvVVizvzAXmfg"
-          // }
+            mapStyle={this.state.style}
+            mapboxApiAccessToken={
+              "pk.eyJ1IjoiZGlub2pzIiwiYSI6ImNrMXIybWIzZTAwdXozbnBrZzlnOWNidzkifQ.Zs9R8K81ZSvVVizvzAXmfg"
+            }
           />
         </DeckGL>
+
+        <nav className="navbar navbar-light bg-light py-0">
+          <a className="navbar-brand py-0" href="#">
+            Nodes visited:{" "}
+            <span className="badge badge-pill badge-secondary">
+              {data.length}
+            </span>
+          </a>
+          <MapStylePicker
+            onStyleChange={this.onStyleChange}
+            currentStyle={this.state.style}
+          />
+        </nav>
       </div>
     );
   }
