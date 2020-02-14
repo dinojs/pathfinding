@@ -27,7 +27,9 @@ export default class App extends Component {
       y: 0,
       hoveredObject: null
     },
-
+    click: { clickedOject: null },
+    start: null,
+    end: null,
     nodes: [],
     settings: Object.keys(SCATTERPLOT_CONTROLS).reduce(
       (accu, key) => ({
@@ -66,7 +68,7 @@ export default class App extends Component {
     //   nodes
     // });
     setTimeout(() => {
-      this.dfs(graph);
+      this.bfs(graph);
     }, 500);
   };
   //////////////////////////////////
@@ -175,7 +177,21 @@ export default class App extends Component {
 
     this.setState({ hover: { x, y, hoveredObject: object, label } });
   }
-  // _onClick({ x, y, object }) {}
+  _onClick({ object }) {
+    if (this.state.start && this.state.end) {
+      this.setState({ start: null, end: null });
+    }
+
+    this.state.start
+      ? this.setState({ end: object[0] })
+      : this.setState({ start: object[0] });
+
+    //Start and End can't be the same
+    if (this.state.start === this.state.end) {
+      this.setState({ start: null, end: null });
+    }
+    console.log(`Start: ${this.state.start} End: ${this.state.end}`);
+  }
 
   onStyleChange = style => {
     this.setState({ style });
@@ -190,7 +206,7 @@ export default class App extends Component {
     if (!data.length) {
       return null;
     }
-    const { hover, settings } = this.state;
+    const { hover, click, settings } = this.state;
     return (
       <div>
         {hover.hoveredObject && (
@@ -203,6 +219,23 @@ export default class App extends Component {
             <div>{hover.label}</div>
           </div>
         )}
+        <DeckGL
+          layers={renderLayers({
+            data: this.state.nodes,
+            onHover: hover => this._onHover(hover),
+            onClick: click => this._onClick(click),
+            settings: this.state.settings
+          })}
+          initialViewState={INITIAL_VIEW_STATE}
+          controller
+        >
+          <StaticMap
+          // mapStyle={this.state.style}
+          // mapboxApiAccessToken={
+          //   "pk.eyJ1IjoiZGlub2pzIiwiYSI6ImNrMXIybWIzZTAwdXozbnBrZzlnOWNidzkifQ.Zs9R8K81ZSvVVizvzAXmfg"
+          // }
+          />
+        </DeckGL>
 
         <LayerControls
           settings={this.state.settings}
@@ -210,27 +243,9 @@ export default class App extends Component {
           onChange={settings => this._updateLayerSettings(settings)}
         />
 
-        <DeckGL
-          layers={renderLayers({
-            data: this.state.nodes,
-            onHover: hover => this._onHover(hover),
-            // onClick: click => this._onClick(click),
-            settings: this.state.settings
-          })}
-          initialViewState={INITIAL_VIEW_STATE}
-          controller
-        >
-          <StaticMap
-            mapStyle={this.state.style}
-            mapboxApiAccessToken={
-              "pk.eyJ1IjoiZGlub2pzIiwiYSI6ImNrMXIybWIzZTAwdXozbnBrZzlnOWNidzkifQ.Zs9R8K81ZSvVVizvzAXmfg"
-            }
-          />
-        </DeckGL>
-
         <nav className="navbar navbar-light bg-light py-0">
           <a className="navbar-brand py-0" href="#">
-            Nodes visited:{" "}
+            Path length:{" "}
             <span className="badge badge-pill badge-secondary">
               {data.length}
             </span>

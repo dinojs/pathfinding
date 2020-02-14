@@ -44,6 +44,7 @@ export function renderLayers(props) {
   const {
     data,
     onHover,
+    onClick,
     settings,
     buildings = URL,
     theme = DEFAULT_THEME
@@ -55,13 +56,14 @@ export function renderLayers(props) {
         //Format array [x,y,z]
         getPosition: d => [d[1], d[2]],
         getFillColor: [0, 128, 255],
-        getRadius: d => 30,
+        getRadius: d => 25,
         opacity: 1, //Put 0 for invisable
         pickable: true,
         radiusMinPixels: 0.25,
         radiusMaxPixels: 30,
         data,
         onHover,
+        onClick,
         ...settings
       }),
 
