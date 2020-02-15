@@ -21,25 +21,31 @@ const INITIAL_VIEW_STATE = {
 };
 
 export default class App extends Component {
-  state = {
-    hover: {
-      x: 0,
-      y: 0,
-      hoveredObject: null
-    },
-    click: { clickedOject: null },
-    start: null,
-    end: null,
-    nodes: [],
-    settings: Object.keys(SCATTERPLOT_CONTROLS).reduce(
-      (accu, key) => ({
-        ...accu,
-        [key]: SCATTERPLOT_CONTROLS[key].value
-      }),
-      {}
-    ),
-    style: "mapbox://styles/mapbox/dark-v10"
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      hover: {
+        x: 0,
+        y: 0,
+        hoveredObject: null
+      },
+      click: { clickedOject: null },
+      start: null,
+      end: null,
+      nodes: [],
+      nodesToDisplay: [],
+      settings: Object.keys(SCATTERPLOT_CONTROLS).reduce(
+        (accu, key) => ({
+          ...accu,
+          [key]: SCATTERPLOT_CONTROLS[key].value
+        }),
+        {}
+      ),
+      style: "mapbox://styles/mapbox/dark-v10"
+    };
+
+    this.animateNodes = this.animateNodes.bind(this);
+  }
 
   componentDidMount() {
     this.processData();
@@ -49,16 +55,6 @@ export default class App extends Component {
     const data = require("./data/nodes.json");
     const graph = data[0];
 
-    //const nodes = [];
-    // const points = data.reduce((accu, curr) => {
-    //   console.log(curr);
-    //   accu.push({
-    //     position: [Number(curr.lon), Number(curr.lat)],
-    //     visited: false
-    //   });
-    //   return accu;
-    // }, []);
-
     //const string = JSON.stringify(data[0]);
     // for (let i in graph) {
     //   nodes.push(new Array(i, graph[i].lon, graph[i].lat));
@@ -67,9 +63,7 @@ export default class App extends Component {
     // this.setState({
     //   nodes
     // });
-    setTimeout(() => {
-      this.bfs(graph);
-    }, 500);
+    this.dfs(graph);
   };
   //////////////////////////////////
   recustructPath = (graph, start, end, came_from) => {
@@ -88,7 +82,7 @@ export default class App extends Component {
       nodes.push(new Array(i, graph[i].lon, graph[i].lat));
     }
     this.setState({
-      nodes
+      nodesToDisplay: nodes
     });
   };
 
@@ -101,8 +95,8 @@ export default class App extends Component {
     let current, adjNodes;
     let nodes = [];
 
-    while (currentFrontier.length || nextFrontier.length) {
-      if (!currentFrontier.length) {
+    while (currentFrontier.length > 0 || nextFrontier.length > 0) {
+      if (currentFrontier.length === 0) {
         //Swap
         [currentFrontier, nextFrontier] = [nextFrontier, currentFrontier];
       }
@@ -110,13 +104,11 @@ export default class App extends Component {
       current = currentFrontier.pop();
       adjNodes = graph[current].adj;
 
-      this.displayNode(current, graph, nodes);
+      nodes.push(new Array(current, graph[current].lon, graph[current].lat));
+      this.setState({ nodes });
 
       if (current === end) {
-        setTimeout(() => {
-          this.recustructPath(graph, start, end, came_from);
-        }, 2500);
-
+        //this.recustructPath(graph, start, end, came_from);
         console.log(
           `%c Run time: ${Date.now() - timer} ms`,
           "color: #fff; background-color:#6097D0; border-radius: 5px; padding: 2px"
@@ -131,12 +123,22 @@ export default class App extends Component {
         }
       }
     }
+
+    this.animateNodes();
+    this.recustructPath(graph, start, end, came_from);
   };
-  displayNode = (current, graph, nodes) => {
-    this.setState({ nodes }, () =>
-      nodes.push(new Array(current, graph[current].lon, graph[current].lat))
-    );
-  };
+
+  animateNodes(i = 0) {
+    let interval = setInterval(() => {
+      let nodesToDisplay = [...this.state.nodesToDisplay, this.state.nodes[i]];
+      this.setState({
+        nodesToDisplay
+      });
+
+      i++;
+      if (i === this.state.nodes.length) clearInterval(interval);
+    }, 1);
+  }
 
   dfs = (graph, start = "1659428496", end = "4985377344") => {
     const timer = Date.now();
@@ -151,13 +153,12 @@ export default class App extends Component {
       frontier.push(current);
 
       //Display node
-
-      this.displayNode(current, graph, nodes);
+      nodes.push(new Array(current, graph[current].lon, graph[current].lat));
+      this.setState({ nodes });
 
       if (current === end) {
-        setTimeout(() => {
-          this.recustructPath(graph, start, end, came_from);
-        }, 3500);
+        this.recustructPath(graph, start, end, came_from);
+
         console.log(`Run time: ${Date.now() - timer} ms`);
         break;
       }
@@ -169,6 +170,8 @@ export default class App extends Component {
           came_from.set(next, current);
         });
     }
+
+    this.animateNodes();
   };
 
   ////////////////////////////////////////
@@ -202,8 +205,8 @@ export default class App extends Component {
   }
 
   render() {
-    const data = this.state.nodes;
-    if (!data.length) {
+    const data = this.state.nodesToDisplay;
+    if (data.length === 0) {
       return null;
     }
     const { hover, click, settings } = this.state;
@@ -221,13 +224,13 @@ export default class App extends Component {
         )}
         <DeckGL
           layers={renderLayers({
-            data: this.state.nodes,
+            data: [...data],
             onHover: hover => this._onHover(hover),
             onClick: click => this._onClick(click),
             settings: this.state.settings
           })}
           initialViewState={INITIAL_VIEW_STATE}
-          controller
+          controller //Allows the user to move the map around
         >
           <StaticMap
           // mapStyle={this.state.style}
