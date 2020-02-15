@@ -33,6 +33,7 @@ export default class App extends Component {
       start: null,
       end: null,
       nodes: [],
+      path: new Map(),
       nodesToDisplay: [],
       settings: Object.keys(SCATTERPLOT_CONTROLS).reduce(
         (accu, key) => ({
@@ -63,17 +64,18 @@ export default class App extends Component {
     // this.setState({
     //   nodes
     // });
-    this.dfs(graph);
+    this.bfs(graph);
   };
   //////////////////////////////////
-  recustructPath = (graph, start, end, came_from) => {
+  recustructPath = (graph, start, end) => {
+    let path = this.state.path;
     let current = end;
     let backwards = [];
     let nodes = [];
-    console.log(`Visited: ${came_from.size} nodes`);
+    console.log(`Visited: ${path.size} nodes`);
     while (current !== start) {
       backwards.push(current);
-      current = came_from.get(current);
+      current = path.get(current);
     }
     backwards.push(start);
     backwards.reverse();
@@ -90,7 +92,7 @@ export default class App extends Component {
     const timer = Date.now();
     let currentFrontier = [start];
     let nextFrontier = [];
-    let came_from = new Map();
+    let path = this.state.path;
     //To reconstruct the path
     let current, adjNodes;
     let nodes = [];
@@ -108,7 +110,7 @@ export default class App extends Component {
       this.setState({ nodes });
 
       if (current === end) {
-        //this.recustructPath(graph, start, end, came_from);
+        this.animateNodes(graph, start, end, path);
         console.log(
           `%c Run time: ${Date.now() - timer} ms`,
           "color: #fff; background-color:#6097D0; border-radius: 5px; padding: 2px"
@@ -117,18 +119,16 @@ export default class App extends Component {
       }
 
       for (let next of adjNodes) {
-        if (!came_from.has(next)) {
+        if (!path.has(next)) {
           nextFrontier.push(next);
-          came_from.set(next, current);
+          path.set(next, current);
         }
       }
     }
-
-    this.animateNodes();
-    this.recustructPath(graph, start, end, came_from);
   };
 
-  animateNodes(i = 0) {
+  animateNodes(graph, start, end, path, i = 0) {
+    this.setState({ path });
     let interval = setInterval(() => {
       let nodesToDisplay = [...this.state.nodesToDisplay, this.state.nodes[i]];
       this.setState({
@@ -136,7 +136,12 @@ export default class App extends Component {
       });
 
       i++;
-      if (i === this.state.nodes.length) clearInterval(interval);
+      if (i === this.state.nodes.length) {
+        clearInterval(interval);
+        setTimeout(() => {
+          this.recustructPath(graph, start, end, path);
+        }, 500);
+      }
     }, 1);
   }
 
@@ -144,7 +149,7 @@ export default class App extends Component {
     const timer = Date.now();
     let stack = [start];
     let frontier = [];
-    let came_from = new Map();
+    let path = this.state.path;
     let current;
     let nodes = [];
 
@@ -157,8 +162,7 @@ export default class App extends Component {
       this.setState({ nodes });
 
       if (current === end) {
-        this.recustructPath(graph, start, end, came_from);
-
+        this.animateNodes(graph, start, end, path);
         console.log(`Run time: ${Date.now() - timer} ms`);
         break;
       }
@@ -167,11 +171,9 @@ export default class App extends Component {
         .filter(next => !frontier.includes(next))
         .forEach(next => {
           stack.push(next);
-          came_from.set(next, current);
+          path.set(next, current);
         });
     }
-
-    this.animateNodes();
   };
 
   ////////////////////////////////////////
