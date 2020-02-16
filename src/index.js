@@ -2,7 +2,6 @@ import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
 import * as serviceWorker from "./serviceWorker";
-import "bootstrap/dist/css/bootstrap.css";
 import { createStore } from "redux";
 import { Provider } from "react-redux"; //Component that will wrap the root component, passs Store to that provider so it can be used in the app
 import rootReducer from "./reducers/rootReducer";

@@ -9,6 +9,7 @@ import { tooltipStyle } from "./components/style";
 import DeckGL from "deck.gl";
 import { renderLayers } from "./components/deckgl-layers";
 import Algorithms from "./components/algorithm";
+import Navbar from "./components/navbar";
 
 const INITIAL_VIEW_STATE = {
   longitude: -74,
@@ -44,8 +45,6 @@ export default class App extends Component {
       ),
       style: "mapbox://styles/mapbox/dark-v10"
     };
-
-    //this.animateNodes = this.animateNodes.bind(this);
   }
 
   componentDidMount() {
@@ -211,9 +210,14 @@ export default class App extends Component {
     if (data.length === 0) {
       return null;
     }
-    const { hover, click, settings } = this.state;
+    const { hover, settings } = this.state;
     return (
       <div>
+        <Navbar
+          data={this.state.nodesToDisplay}
+          onStyleChange={this.onStyleChange}
+          style={this.state.style}
+        />
         {hover.hoveredObject && (
           <div
             style={{
@@ -248,19 +252,6 @@ export default class App extends Component {
           propTypes={SCATTERPLOT_CONTROLS}
           onChange={settings => this._updateLayerSettings(settings)}
         />
-
-        <nav className="navbar navbar-light bg-light py-0">
-          <a className="navbar-brand py-0" href="#">
-            Path length:{" "}
-            <span className="badge badge-pill badge-secondary">
-              {data.length}
-            </span>
-          </a>
-          <MapStylePicker
-            onStyleChange={this.onStyleChange}
-            currentStyle={this.state.style}
-          />
-        </nav>
       </div>
     );
   }

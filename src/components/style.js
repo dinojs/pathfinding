@@ -9,12 +9,7 @@ export const tooltipStyle = {
   pointerEvents: "none"
 };
 
-export const mapStylePicker = {
-  position: "absolute",
-  top: "3px",
-  left: "200px",
-  zIndex: 100
-};
+export const mapStylePicker = {};
 
 export const layerControl = {
   borderRadius: 3,

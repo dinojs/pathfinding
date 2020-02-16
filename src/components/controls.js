@@ -1,5 +1,6 @@
 import React, { Component } from "react";
-import { mapStylePicker, layerControl } from "./style";
+import { layerControl } from "./style";
+import { DropdownButton, Dropdown } from "react-bootstrap";
 
 export const SCATTERPLOT_CONTROLS = {
   showScatterplot: {
@@ -45,7 +46,6 @@ export function MapStylePicker({ currentStyle, onStyleChange }) {
   return (
     <select
       className="map-style-picker"
-      style={mapStylePicker}
       value={currentStyle}
       onChange={e => onStyleChange(e.target.value)}
     >
