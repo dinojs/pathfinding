@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { layerControl } from "./style";
-import { DropdownButton, Dropdown } from "react-bootstrap";
+import { Form } from "react-bootstrap";
 
 export const SCATTERPLOT_CONTROLS = {
   showScatterplot: {
@@ -44,17 +44,21 @@ const MAPBOX_DEFAULT_MAPSTYLES = [
 
 export function MapStylePicker({ currentStyle, onStyleChange }) {
   return (
-    <select
-      className="map-style-picker"
-      value={currentStyle}
-      onChange={e => onStyleChange(e.target.value)}
-    >
-      {MAPBOX_DEFAULT_MAPSTYLES.map(style => (
-        <option key={style.value} value={style.value}>
-          {style.label}
-        </option>
-      ))}
-    </select>
+    <Form>
+      <Form.Control
+        as="select"
+        size="sm"
+        className="map-style-picker"
+        value={currentStyle}
+        onChange={e => onStyleChange(e.target.value)}
+      >
+        {MAPBOX_DEFAULT_MAPSTYLES.map(style => (
+          <option key={style.value} value={style.value}>
+            {style.label}
+          </option>
+        ))}
+      </Form.Control>
+    </Form>
   );
 }
 
