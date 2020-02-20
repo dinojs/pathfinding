@@ -9,8 +9,6 @@ export const tooltipStyle = {
   pointerEvents: "none"
 };
 
-export const mapStylePicker = {};
-
 export const layerControl = {
   borderRadius: 3,
   boxShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",

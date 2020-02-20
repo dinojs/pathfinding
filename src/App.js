@@ -1,15 +1,11 @@
 import React, { Component } from "react";
 import { StaticMap } from "react-map-gl";
-import {
-  LayerControls,
-  MapStylePicker,
-  SCATTERPLOT_CONTROLS
-} from "./components/controls";
-import { tooltipStyle } from "./components/style";
 import DeckGL from "deck.gl";
 import { renderLayers } from "./components/deckgl-layers";
-import Algorithms from "./components/algorithm";
+import { Algorithms } from "./components/algorithms";
 import Navbar from "./components/navbar";
+import { LayerControls, SCATTERPLOT_CONTROLS } from "./components/controls";
+import { tooltipStyle } from "./components/style";
 
 const INITIAL_VIEW_STATE = {
   longitude: -74,
@@ -31,11 +27,13 @@ export default class App extends Component {
         hoveredObject: null
       },
       click: { clickedOject: null },
-      start: 5173488749,
-      end: 6330518860,
+      start: null,
+      end: null,
       nodes: [],
       path: new Map(),
       nodesToDisplay: [],
+      pathToDisplay: [],
+      time: 0,
       settings: Object.keys(SCATTERPLOT_CONTROLS).reduce(
         (accu, key) => ({
           ...accu,
@@ -54,35 +52,10 @@ export default class App extends Component {
   processData = () => {
     const data = require("./data/nodes.json");
     const graph = data[0];
+    let nodes = this.state.nodes;
 
     //const string = JSON.stringify(data[0]);
-    // for (let i in graph) {
-    //   nodes.push(new Array(i, graph[i].lon, graph[i].lat));
-    // }
-
-    // this.setState({
-    //   nodes
-    // });
-    this.dfs(graph);
-  };
-  //////////////////////////////////
-  recustructPath = (graph, start, end) => {
-    let path = this.state.path;
-    let current = end;
-    let backwards = [];
-    let nodes = [];
-    console.log(
-      `%c Visited: ${path.size} nodes`,
-      "color: #fff; background-color:#6097D0; border-radius: 5px; padding: 2px"
-    );
-    while (current !== start) {
-      backwards.push(current);
-      current = path.get(current);
-    }
-    backwards.push(start);
-    backwards.reverse();
-    console.log(`Path length ${backwards.length}`);
-    for (let i of backwards) {
+    for (let i in graph) {
       nodes.push(new Array(i, graph[i].lon, graph[i].lat));
     }
 
@@ -90,15 +63,52 @@ export default class App extends Component {
       nodesToDisplay: nodes
     });
   };
+  //////////////////////////////////
+  recustructPath = graph => {
+    let path = this.state.path;
+    let current = this.state.end;
+    let backwards = [];
+    let nodes = [];
 
-  bfs = (graph, start = "5173488749", end = "6330518860") => {
+    console.log(
+      `%c Visited: ${path.size} nodes`,
+      "color: #fff; background-color:#6097D0; border-radius: 5px; padding: 2px"
+    );
+
+    while (current !== this.state.start) {
+      backwards.push(current);
+      current = path.get(current);
+    }
+    backwards.push(this.state.start);
+    backwards.reverse();
+    console.log(`Path length ${backwards.length}`);
+    let timestamp = Date.now();
+    this.setState({ time: timestamp });
+    for (let i of backwards) {
+      timestamp = timestamp + 100;
+      nodes.push(
+        //new Array(i, graph[i].lon, graph[i].lat, timestamp - this.state.time)
+        new Array(i, graph[i].lon, graph[i].lat, timestamp)
+      );
+    }
+    this.setState({
+      pathToDisplay: nodes
+    });
+    console.log(this.state);
+  };
+
+  bfs = () => {
+    const data = require("./data/nodes.json");
+    const graph = data[0];
     const timer = Date.now();
-    let currentFrontier = [start];
+    let currentFrontier = [this.state.start];
     let nextFrontier = [];
+
     let path = this.state.path;
     //To reconstruct the path
     let current, adjNodes;
     let nodes = [];
+    this.setState({ nodesToDisplay: [] });
 
     while (currentFrontier.length > 0 || nextFrontier.length > 0) {
       if (currentFrontier.length === 0) {
@@ -111,8 +121,8 @@ export default class App extends Component {
 
       nodes.push(new Array(current, graph[current].lon, graph[current].lat));
 
-      if (current === end) {
-        this.animateNodes(graph, start, end, nodes, path);
+      if (current === this.state.end) {
+        this.animateNodes(graph, nodes, path);
         console.log(`Run time: ${Date.now() - timer} ms`);
         break;
       }
@@ -126,9 +136,10 @@ export default class App extends Component {
     }
   };
 
-  animateNodes(graph, start, end, nodes, path, i = 0) {
+  animateNodes(graph, nodes, path, i = 0) {
     this.setState({ nodes });
     this.setState({ path }); //Set visited nodes order
+
     let interval = setInterval(() => {
       let nodesToDisplay = [...this.state.nodesToDisplay, this.state.nodes[i]];
       this.setState({
@@ -139,20 +150,22 @@ export default class App extends Component {
       if (i === this.state.nodes.length) {
         clearInterval(interval);
         setTimeout(() => {
-          this.recustructPath(graph, start, end, path);
+          this.recustructPath(graph, path);
         }, 500);
       }
     }, 0.001);
   }
 
-  dfs = (graph, start = "5173488749", end = "6330518860") => {
+  dfs = () => {
+    const data = require("./data/nodes.json");
+    const graph = data[0];
     const timer = Date.now();
-    let stack = [start];
+    let stack = [this.state.start];
     let frontier = [];
     let path = this.state.path;
     let current;
     let nodes = [];
-
+    this.setState({ nodesToDisplay: [] });
     while (stack.length) {
       current = stack.pop();
       frontier.push(current);
@@ -160,8 +173,8 @@ export default class App extends Component {
       //Display node
       nodes.push(new Array(current, graph[current].lon, graph[current].lat));
 
-      if (current === end) {
-        this.animateNodes(graph, start, end, nodes, path);
+      if (current === this.state.end) {
+        this.animateNodes(graph, nodes, path);
         console.log(`Run time: ${Date.now() - timer} ms`);
         break;
       }
@@ -204,16 +217,23 @@ export default class App extends Component {
   _updateLayerSettings(settings) {
     this.setState({ settings });
   }
-
+  triggerChildAlert() {
+    this.refs.child.handleClick();
+  }
   render() {
     const data = this.state.nodesToDisplay;
+    const path = this.state.pathToDisplay;
     if (data.length === 0) {
       return null;
     }
     const { hover, settings } = this.state;
+
     return (
       <div>
         <Navbar
+          ref="child"
+          bfs={this.bfs}
+          dfs={this.dfs}
           data={this.state.nodesToDisplay}
           onStyleChange={this.onStyleChange}
           style={this.state.style}
@@ -228,10 +248,10 @@ export default class App extends Component {
             <div>{hover.label}</div>
           </div>
         )}
-
         <DeckGL
           layers={renderLayers({
             data: [...data],
+            path: [...path],
             onHover: hover => this._onHover(hover),
             onClick: click => this._onClick(click),
             settings: this.state.settings

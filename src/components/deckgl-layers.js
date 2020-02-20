@@ -1,8 +1,12 @@
-import { ScatterplotLayer, TripsLayer } from "deck.gl";
+import { ScatterplotLayer } from "deck.gl";
+import { TripsLayer } from "@deck.gl/geo-layers";
 import { PolygonLayer } from "@deck.gl/layers";
 import { AmbientLight, PointLight, LightingEffect } from "@deck.gl/core";
 const URL =
   "https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/trips/buildings.json";
+
+const trips =
+  "https://raw.githubusercontent.com/uber-common/deck.gl-data/master/website/sf.trips.json";
 const ambientLight = new AmbientLight({
   color: [255, 255, 255],
   intensity: 1.0
@@ -43,6 +47,7 @@ export function renderLayers(props) {
   //Distructuring arguments
   const {
     data,
+    path,
     onHover,
     onClick,
     settings,
@@ -56,7 +61,7 @@ export function renderLayers(props) {
         //Format array [x,y,z]
         getPosition: d => [d[1], d[2]],
         getFillColor: [0, 128, 255],
-        getRadius: d => 18,
+        getRadius: d => 12,
         opacity: 1, //Put 0 for invisable
         pickable: true,
         radiusMinPixels: 0.25,
@@ -85,21 +90,21 @@ export function renderLayers(props) {
       getElevation: f => f.height,
       getFillColor: theme.buildingColor,
       material: theme.material
+    }),
+
+    new TripsLayer({
+      id: "trips",
+      data: path,
+      getPath: d => [d[1], d[2]],
+      getTimestamps: d => [d[3]],
+      getColor: [253, 128, 93],
+      opacity: 0.3,
+      widthMinPixels: 2,
+      rounded: true,
+      trailLength: 180,
+      currentTime: 100,
+
+      shadowEnabled: false
     })
-
-    //   new TripsLayer({
-    //     id: "trips",
-    //     data: trips,
-    //     getPath: d => [d[1], d[2]],
-    //     getTimestamps: d => d.timestamps,
-    //     getColor: d => [0, 128, 255],
-    //     opacity: 0.3,
-    //     widthMinPixels: 2,
-    //     rounded: true,
-    //     trailLength,
-    //     currentTime: this.state.time,
-
-    //     shadowEnabled: false
-    //   })
   ];
 }

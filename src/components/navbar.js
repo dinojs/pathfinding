@@ -2,20 +2,34 @@ import React, { Component } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Navbar, Button, Badge, Form } from "react-bootstrap";
 import { MapStylePicker } from "./controls";
+import Algorithms from "./algorithms";
 
 class navbar extends Component {
+  constructor() {
+    super();
+    this.onClick = this.handleClick.bind(this);
+  }
+
+  handleClick(e) {
+    this.props.bfs();
+  }
+
   render() {
     return (
       <Navbar
         className="justify-content-start"
-        bg="light"
-        variant="light"
+        bg="secondary"
+        variant="dark"
         fixed="top"
       >
+        <Badge variant="dark">
+          <h6>Pathfinding Visualiser</h6>
+        </Badge>
+
         <Navbar.Collapse className="justify-content-center">
-          Select Algorithm:
-          <Form>
-            <Form.Control as="select" size="sm">
+          <Form inline>
+            <Form.Label className="mr-sm-1">Select Algorithm: </Form.Label>
+            <Form.Control as="select" className="mr-sm-1" size="sm">
               <optgroup label="Working">
                 <option>Bread-First Search</option>
                 <option>Dread-First Search</option>
@@ -27,27 +41,35 @@ class navbar extends Component {
                 <option>Work in progress</option>
               </optgroup>
             </Form.Control>
+            <Button
+              onClick={this.onClick}
+              variant="success"
+              className="mr-sm-1"
+              size="sm"
+            >
+              START
+            </Button>
+            <Button variant="danger" className="mr-sm-1" size="sm">
+              STOP
+            </Button>
+            <Button variant="primary" className="mr-sm-1" size="sm">
+              CLEAR
+            </Button>
+            <MapStylePicker
+              onStyleChange={this.props.onStyleChange}
+              currentStyle={this.props.style}
+            />
           </Form>
-          <Button variant="primary" size="sm">
-            START
-          </Button>
-          <Button variant="danger" size="sm">
-            STOP
-          </Button>
-          <Button variant="secondary" size="sm">
-            CLEAR
-          </Button>
-          <MapStylePicker
-            onStyleChange={this.props.onStyleChange}
-            currentStyle={this.props.style}
-          />
         </Navbar.Collapse>
-        <Button variant="dark" size="sm">
-          Nodes visited:{" "}
-          <Badge pill variant="light">
-            {this.props.data.length}
-          </Badge>
-        </Button>
+
+        <Badge variant="dark">
+          <h6>
+            Nodes visited:{" "}
+            <Badge pill variant="light">
+              {this.props.data.length}
+            </Badge>
+          </h6>
+        </Badge>
       </Navbar>
     );
   }
