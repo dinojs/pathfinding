@@ -7,6 +7,7 @@ const URL =
 
 const trips =
   "https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/trips/trips-v7.json";
+
 const ambientLight = new AmbientLight({
   color: [255, 255, 255],
   intensity: 1.0
@@ -53,38 +54,9 @@ export function renderLayers(props) {
     onClick,
     settings,
     buildings = URL,
-    trailLength = 20,
     theme = DEFAULT_THEME
   } = props;
   return [
-    new TripsLayer({
-      id: "trips",
-      data: path,
-      getPath: d => d.path,
-      getTimestamps: d => d.timestamps,
-      getColor: [253, 128, 93],
-      opacity: 0.3,
-      widthMinPixels: 2,
-      rounded: true,
-      trailLength,
-      currentTime: time,
-
-      shadowEnabled: false
-    }),
-    // new TripsLayer({
-    //   id: "trips-layer",
-    //   data: path,
-    //   getTimestamps: d => d.timestamps,
-    //   // deduct start timestamp from each data point to avoid overflow
-    //   getTimestamps: d => d.waypoints.map(p => p.timestamp - 1554772579000),
-    //   getColor: [253, 128, 93],
-    //   opacity: 0.8,
-    //   widthMinPixels: 5,
-    //   rounded: true,
-    //   trailLength: 200,
-    //   currentTime: time
-    // }),
-
     settings.showScatterplot &&
       new ScatterplotLayer({
         id: "scatterplot",
@@ -121,6 +93,20 @@ export function renderLayers(props) {
       getElevation: f => f.height,
       getFillColor: theme.buildingColor,
       material: theme.material
+    }),
+    new TripsLayer({
+      id: "trips",
+      data: path,
+      getPath: d => d.path,
+      getTimestamps: d => d.timestamps,
+      getColor: [253, 128, 93],
+      opacity: 0.8,
+      widthMinPixels: 5,
+      rounded: true,
+      trailLength: 250,
+      currentTime: time,
+
+      shadowEnabled: false
     })
   ];
 }

@@ -56,8 +56,8 @@ export default class App extends Component {
   }
   _animate() {
     const {
-      loopLength = 1800, // unit corresponds to the timestamp in source data
-      animationSpeed = 30 // unit time per second
+      loopLength = 100, // unit corresponds to the timestamp in source data
+      animationSpeed = 25 // unit time per second
     } = this.props;
     const timestamp = Date.now() / 1000;
     const loopTime = loopLength / animationSpeed;
@@ -91,7 +91,7 @@ export default class App extends Component {
     let backwards = [];
     let nodes = [];
     let timestamp = [];
-    let timestampCounter = 10;
+    let timestampCounter = 2;
     console.log(
       `%c Visited: ${path.size} nodes`,
       "color: #fff; background-color:#6097D0; border-radius: 5px; padding: 2px"
@@ -106,7 +106,7 @@ export default class App extends Component {
     console.log(`Path length ${backwards.length}`);
 
     for (let i of backwards) {
-      timestampCounter += 10;
+      timestampCounter += 2;
       nodes.push([graph[i].lon, graph[i].lat]);
       timestamp.push(timestampCounter);
     }
@@ -121,9 +121,7 @@ export default class App extends Component {
       pathToDisplay
     });
     this._animate();
-    console.log(pathToDisplay[0].path[3]);
-    console.log(pathToDisplay[0].timestamps[3]);
-    console.log(pathToDisplay);
+    console.log(this.state.pathToDisplay);
   };
 
   bfs = () => {
@@ -290,10 +288,10 @@ export default class App extends Component {
           controller //Allows the user to move the map around
         >
           <StaticMap
-          // mapStyle={this.state.style}
-          // mapboxApiAccessToken={
-          //   "pk.eyJ1IjoiZGlub2pzIiwiYSI6ImNrMXIybWIzZTAwdXozbnBrZzlnOWNidzkifQ.Zs9R8K81ZSvVVizvzAXmfg"
-          // }
+            mapStyle={this.state.style}
+            mapboxApiAccessToken={
+              "pk.eyJ1IjoiZGlub2pzIiwiYSI6ImNrMXIybWIzZTAwdXozbnBrZzlnOWNidzkifQ.Zs9R8K81ZSvVVizvzAXmfg"
+            }
           />
         </DeckGL>
 

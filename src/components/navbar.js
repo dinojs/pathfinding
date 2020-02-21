@@ -11,7 +11,7 @@ class navbar extends Component {
   }
 
   handleClick(e) {
-    this.props.bfs();
+    this.props.dfs();
   }
 
   render() {
