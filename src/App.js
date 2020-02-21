@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { StaticMap } from "react-map-gl";
 import DeckGL from "deck.gl";
 import { renderLayers } from "./components/deckgl-layers";
-import { Algorithms } from "./components/algorithms";
+//import { Algorithms } from "./components/algorithms";
 import Navbar from "./components/navbar";
 import { LayerControls, SCATTERPLOT_CONTROLS } from "./components/controls";
 import { tooltipStyle } from "./components/style";
@@ -32,7 +32,7 @@ export default class App extends Component {
       nodes: [],
       path: new Map(),
       nodesToDisplay: [],
-      pathToDisplay: [],
+      pathToDisplay: new Map(),
       time: 0,
       settings: Object.keys(SCATTERPLOT_CONTROLS).reduce(
         (accu, key) => ({
@@ -49,6 +49,27 @@ export default class App extends Component {
     this.processData();
   }
 
+  componentWillUnmount() {
+    if (this._animationFrame) {
+      window.cancelAnimationFrame(this._animationFrame);
+    }
+  }
+  _animate() {
+    const {
+      loopLength = 1800, // unit corresponds to the timestamp in source data
+      animationSpeed = 30 // unit time per second
+    } = this.props;
+    const timestamp = Date.now() / 1000;
+    const loopTime = loopLength / animationSpeed;
+
+    this.setState({
+      time: ((timestamp % loopTime) / loopTime) * loopLength
+    });
+    this._animationFrame = window.requestAnimationFrame(
+      this._animate.bind(this)
+    );
+  }
+
   processData = () => {
     const data = require("./data/nodes.json");
     const graph = data[0];
@@ -56,7 +77,7 @@ export default class App extends Component {
 
     //const string = JSON.stringify(data[0]);
     for (let i in graph) {
-      nodes.push(new Array(i, graph[i].lon, graph[i].lat));
+      nodes.push([i, graph[i].lon, graph[i].lat]);
     }
 
     this.setState({
@@ -69,7 +90,8 @@ export default class App extends Component {
     let current = this.state.end;
     let backwards = [];
     let nodes = [];
-
+    let timestamp = [];
+    let timestampCounter = 10;
     console.log(
       `%c Visited: ${path.size} nodes`,
       "color: #fff; background-color:#6097D0; border-radius: 5px; padding: 2px"
@@ -82,19 +104,26 @@ export default class App extends Component {
     backwards.push(this.state.start);
     backwards.reverse();
     console.log(`Path length ${backwards.length}`);
-    let timestamp = Date.now();
-    this.setState({ time: timestamp });
+
     for (let i of backwards) {
-      timestamp = timestamp + 100;
-      nodes.push(
-        //new Array(i, graph[i].lon, graph[i].lat, timestamp - this.state.time)
-        new Array(i, graph[i].lon, graph[i].lat, timestamp)
-      );
+      timestampCounter += 10;
+      nodes.push([graph[i].lon, graph[i].lat]);
+      timestamp.push(timestampCounter);
     }
+    const pathToDisplay = [
+      {
+        path: nodes,
+        timestamps: timestamp
+      }
+    ];
+
     this.setState({
-      pathToDisplay: nodes
+      pathToDisplay
     });
-    console.log(this.state);
+    this._animate();
+    console.log(pathToDisplay[0].path[3]);
+    console.log(pathToDisplay[0].timestamps[3]);
+    console.log(pathToDisplay);
   };
 
   bfs = () => {
@@ -119,7 +148,7 @@ export default class App extends Component {
       current = currentFrontier.pop();
       adjNodes = graph[current].adj;
 
-      nodes.push(new Array(current, graph[current].lon, graph[current].lat));
+      nodes.push([current, graph[current].lon, graph[current].lat]);
 
       if (current === this.state.end) {
         this.animateNodes(graph, nodes, path);
@@ -171,7 +200,7 @@ export default class App extends Component {
       frontier.push(current);
 
       //Display node
-      nodes.push(new Array(current, graph[current].lon, graph[current].lat));
+      nodes.push([current, graph[current].lon, graph[current].lat]);
 
       if (current === this.state.end) {
         this.animateNodes(graph, nodes, path);
@@ -252,6 +281,7 @@ export default class App extends Component {
           layers={renderLayers({
             data: [...data],
             path: [...path],
+            time: this.state.time,
             onHover: hover => this._onHover(hover),
             onClick: click => this._onClick(click),
             settings: this.state.settings

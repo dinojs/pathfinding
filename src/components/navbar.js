@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Navbar, Button, Badge, Form } from "react-bootstrap";
 import { MapStylePicker } from "./controls";
-import Algorithms from "./algorithms";
+//import Algorithms from "./algorithms";
 
 class navbar extends Component {
   constructor() {
