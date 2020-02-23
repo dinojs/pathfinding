@@ -26,6 +26,8 @@ export default class App extends Component {
         y: 0,
         hoveredObject: null
       },
+      timestampCounter: null,
+      trailLength: 200, //Can't be null
       click: { clickedOject: null },
       start: null,
       end: null,
@@ -54,11 +56,13 @@ export default class App extends Component {
       window.cancelAnimationFrame(this._animationFrame);
     }
   }
-  _animate() {
+  animatePath() {
     const {
-      loopLength = 100, // unit corresponds to the timestamp in source data
-      animationSpeed = 25 // unit time per second
+      loopLength = this.state.timestampCounter, // unit corresponds to the timestamp in source data
+      animationSpeed = loopLength / 2, // unit time per second
+      trailLength = loopLength
     } = this.props;
+    this.setState({ trailLength });
     const timestamp = Date.now() / 1000;
     const loopTime = loopLength / animationSpeed;
 
@@ -66,7 +70,7 @@ export default class App extends Component {
       time: ((timestamp % loopTime) / loopTime) * loopLength
     });
     this._animationFrame = window.requestAnimationFrame(
-      this._animate.bind(this)
+      this.animatePath.bind(this)
     );
   }
 
@@ -91,7 +95,7 @@ export default class App extends Component {
     let backwards = [];
     let nodes = [];
     let timestamp = [];
-    let timestampCounter = 2;
+    let timestampCounter = 1;
     console.log(
       `%c Visited: ${path.size} nodes`,
       "color: #fff; background-color:#6097D0; border-radius: 5px; padding: 2px"
@@ -106,10 +110,11 @@ export default class App extends Component {
     console.log(`Path length ${backwards.length}`);
 
     for (let i of backwards) {
-      timestampCounter += 2;
-      nodes.push([graph[i].lon, graph[i].lat]);
+      timestampCounter++;
+      nodes.push([graph[i].lon, graph[i].lat, 25]); //x, y, z
       timestamp.push(timestampCounter);
     }
+    this.setState({ timestampCounter: timestamp.pop() });
     const pathToDisplay = [
       {
         path: nodes,
@@ -120,8 +125,7 @@ export default class App extends Component {
     this.setState({
       pathToDisplay
     });
-    this._animate();
-    console.log(this.state.pathToDisplay);
+    this.animatePath();
   };
 
   bfs = () => {
@@ -165,8 +169,7 @@ export default class App extends Component {
 
   animateNodes(graph, nodes, path, i = 0) {
     this.setState({ nodes });
-    this.setState({ path }); //Set visited nodes order
-
+    this.setState({ path }); //Set visited nodes sequence
     let interval = setInterval(() => {
       let nodesToDisplay = [...this.state.nodesToDisplay, this.state.nodes[i]];
       this.setState({
@@ -277,6 +280,7 @@ export default class App extends Component {
         )}
         <DeckGL
           layers={renderLayers({
+            trailLength: this.state.trailLength,
             data: [...data],
             path: [...path],
             time: this.state.time,
