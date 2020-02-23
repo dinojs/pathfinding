@@ -34,7 +34,7 @@ export default class App extends Component {
       nodes: [],
       path: new Map(),
       nodesToDisplay: [],
-      pathToDisplay: new Map(),
+      pathToDisplay: null,
       time: 0,
       settings: Object.keys(SCATTERPLOT_CONTROLS).reduce(
         (accu, key) => ({
@@ -77,7 +77,7 @@ export default class App extends Component {
   processData = () => {
     const data = require("./data/nodes.json");
     const graph = data[0];
-    let nodes = this.state.nodes;
+    let nodes = [];
 
     //const string = JSON.stringify(data[0]);
     for (let i in graph) {
@@ -85,7 +85,8 @@ export default class App extends Component {
     }
 
     this.setState({
-      nodesToDisplay: nodes
+      nodesToDisplay: nodes,
+      pathToDisplay: new Map()
     });
   };
   //////////////////////////////////
@@ -111,7 +112,7 @@ export default class App extends Component {
 
     for (let i of backwards) {
       timestampCounter++;
-      nodes.push([graph[i].lon, graph[i].lat, 25]); //x, y, z
+      nodes.push([graph[i].lon, graph[i].lat, 22]); //x, y, z
       timestamp.push(timestampCounter);
     }
     this.setState({ timestampCounter: timestamp.pop() });
@@ -247,9 +248,6 @@ export default class App extends Component {
   _updateLayerSettings(settings) {
     this.setState({ settings });
   }
-  triggerChildAlert() {
-    this.refs.child.handleClick();
-  }
   render() {
     const data = this.state.nodesToDisplay;
     const path = this.state.pathToDisplay;
@@ -264,9 +262,12 @@ export default class App extends Component {
           ref="child"
           bfs={this.bfs}
           dfs={this.dfs}
+          processData={this.processData}
           data={this.state.nodesToDisplay}
           onStyleChange={this.onStyleChange}
           style={this.state.style}
+          start={this.state.start}
+          end={this.state.end}
         />
         {hover.hoveredObject && (
           <div
@@ -292,10 +293,10 @@ export default class App extends Component {
           controller //Allows the user to move the map around
         >
           <StaticMap
-            mapStyle={this.state.style}
-            mapboxApiAccessToken={
-              "pk.eyJ1IjoiZGlub2pzIiwiYSI6ImNrMXIybWIzZTAwdXozbnBrZzlnOWNidzkifQ.Zs9R8K81ZSvVVizvzAXmfg"
-            }
+          // mapStyle={this.state.style}
+          // mapboxApiAccessToken={
+          //   "pk.eyJ1IjoiZGlub2pzIiwiYSI6ImNrMXIybWIzZTAwdXozbnBrZzlnOWNidzkifQ.Zs9R8K81ZSvVVizvzAXmfg"
+          // }
           />
         </DeckGL>
 

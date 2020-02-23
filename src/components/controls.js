@@ -46,8 +46,8 @@ export function MapStylePicker({ currentStyle, onStyleChange }) {
   return (
     <Form.Control
       as="select"
-      size="sm"
-      className="map-style-picker"
+      size="md"
+      className="col-sm-2 sm"
       value={currentStyle}
       onChange={e => onStyleChange(e.target.value)}
     >

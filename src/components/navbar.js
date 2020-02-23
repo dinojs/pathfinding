@@ -1,20 +1,41 @@
 import React, { Component } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Navbar, Button, Badge, Form } from "react-bootstrap";
+import { Navbar, Button, Badge, Container } from "react-bootstrap";
 import { MapStylePicker } from "./controls";
+import Select from "react-select";
 //import Algorithms from "./algorithms";
 
 class navbar extends Component {
-  constructor() {
-    super();
-    this.onClick = this.handleClick.bind(this);
+  constructor(props) {
+    super(props);
+    this.state = {
+      algorithm: null
+    };
   }
 
-  handleClick(e) {
-    this.props.bfs();
+  handleAlgo(e) {
+    this.setState({ algorithm: e.value });
+  }
+
+  handleStart() {
+    switch (this.state.algorithm) {
+      case "bfs":
+        this.props.bfs();
+        break;
+      case "dfs":
+        this.props.dfs();
+        break;
+      default:
+        console.log("No algorithm selected!");
+    }
   }
 
   render() {
+    const algorithms = [
+      { value: "bfs", label: "Bread-First Search" },
+      { value: "dfs", label: "Depth-First Search" }
+    ];
+
     return (
       <Navbar
         className="justify-content-start"
@@ -27,39 +48,44 @@ class navbar extends Component {
         </Badge>
 
         <Navbar.Collapse className="justify-content-center">
-          <Form inline>
-            <Form.Label className="mr-sm-1">Select Algorithm: </Form.Label>
-            <Form.Control as="select" className="mr-sm-1" size="sm">
-              <optgroup label="Working">
-                <option>Bread-First Search</option>
-                <option>Dread-First Search</option>
-              </optgroup>
-              <optgroup label="Work in progress" disabled>
-                <option>Work in progress</option>
-                <option>Work in progress</option>
-                <option>Work in progress</option>
-                <option>Work in progress</option>
-              </optgroup>
-            </Form.Control>
-            <Button
-              onClick={this.onClick}
-              variant="success"
-              className="mr-sm-1"
-              size="sm"
-            >
-              START
-            </Button>
-            <Button variant="danger" className="mr-sm-1" size="sm">
-              STOP
-            </Button>
-            <Button variant="primary" className="mr-sm-1" size="sm">
-              CLEAR
-            </Button>
-            <MapStylePicker
-              onStyleChange={this.props.onStyleChange}
-              currentStyle={this.props.style}
-            />
-          </Form>
+          <Select
+            options={algorithms}
+            className="col-2 "
+            placeholder={this.props.start}
+            size="sm"
+          />
+          <Select
+            options={algorithms}
+            className="col-2  "
+            placeholder={this.props.end}
+          />
+
+          <Select
+            options={algorithms}
+            className="col-2 "
+            onChange={e => this.handleAlgo(e)}
+            placeholder="Algorithm"
+          />
+          <Button
+            onClick={() => this.handleStart()} //()=> so that it doesn't get called as soon as mounted
+            variant="primary"
+            className="mr-sm-1 font-weight-bold"
+            size="md"
+          >
+            START
+          </Button>
+          <Button
+            onClick={() => processData()}
+            variant="danger"
+            className="mr-sm-1"
+            size="md"
+          >
+            CLEAR
+          </Button>
+          <MapStylePicker
+            onStyleChange={this.props.onStyleChange}
+            currentStyle={this.props.style}
+          />
         </Navbar.Collapse>
 
         <Badge variant="dark">
