@@ -75,7 +75,7 @@ class navbar extends Component {
             START
           </Button>
           <Button
-            onClick={() => processData()}
+            onClick={() => this.props.processData()}
             variant="danger"
             className="mr-sm-1"
             size="md"

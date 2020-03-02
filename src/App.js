@@ -166,26 +166,14 @@ export default class App extends Component {
         }
       }
     }
+    if (!currentFrontier.length && !nextFrontier.length) {
+      this.animateNodesNoPath(nodes, path);
+      console.log(`Run time: ${Date.now() - timer} ms`);
+      console.log(
+        `Path not found, ${current} possible dead end or all the adjacent nodes have already been visited`
+      );
+    }
   };
-
-  animateNodes(graph, nodes, path, i = 0) {
-    this.setState({ nodes });
-    this.setState({ path }); //Set visited nodes sequence
-    let interval = setInterval(() => {
-      let nodesToDisplay = [...this.state.nodesToDisplay, this.state.nodes[i]];
-      this.setState({
-        nodesToDisplay
-      });
-
-      i++;
-      if (i === this.state.nodes.length) {
-        clearInterval(interval);
-        setTimeout(() => {
-          this.recustructPath(graph, path);
-        }, 500);
-      }
-    }, 0.001);
-  }
 
   dfs = () => {
     const data = require("./data/nodes.json");
@@ -205,6 +193,7 @@ export default class App extends Component {
       nodes.push([current, graph[current].lon, graph[current].lat]);
 
       if (current === this.state.end) {
+        console.log(`Node found`);
         this.animateNodes(graph, nodes, path);
         console.log(`Run time: ${Date.now() - timer} ms`);
         break;
@@ -217,8 +206,48 @@ export default class App extends Component {
           path.set(next, current);
         });
     }
+    if (!stack.length) {
+      this.animateNodesNoPath(nodes, path);
+      console.log(`Run time: ${Date.now() - timer} ms`);
+      console.log(
+        `Path not found, ${current} possible dead end or all the adjacent nodes have already been visited`
+      );
+    }
   };
 
+  animateNodes(graph, nodes, path, i = 0) {
+    this.setState({ nodes });
+    this.setState({ path }); //Set visited nodes sequence
+    let interval = setInterval(() => {
+      let nodesToDisplay = [...this.state.nodesToDisplay, this.state.nodes[i]];
+      this.setState({
+        nodesToDisplay
+      });
+
+      i++; //Update every 5 nodes
+      if (i === this.state.nodes.length) {
+        clearInterval(interval);
+        this.recustructPath(graph, path);
+      }
+    }, 0.001);
+  }
+
+  animateNodesNoPath(nodes, path, i = 0) {
+    this.setState({ nodes });
+    this.setState({ path }); //Set visited nodes sequence
+    let interval = setInterval(() => {
+      let nodesToDisplay = [...this.state.nodesToDisplay, this.state.nodes[i]];
+      this.setState({
+        nodesToDisplay
+      });
+
+      i++;
+
+      if (i === this.state.nodes.length) {
+        clearInterval(interval);
+      }
+    }, 0.0001);
+  }
   ////////////////////////////////////////
   _onHover({ x, y, object }) {
     const label = `Node ${object}`;
@@ -238,7 +267,7 @@ export default class App extends Component {
     if (this.state.start === this.state.end) {
       this.setState({ start: null, end: null });
     }
-    console.log(`Start: ${this.state.start} End: ${this.state.end}`);
+    //console.log(`Start: ${this.state.start} End: ${this.state.end}`);
   }
 
   onStyleChange = style => {
@@ -293,10 +322,10 @@ export default class App extends Component {
           controller //Allows the user to move the map around
         >
           <StaticMap
-          // mapStyle={this.state.style}
-          // mapboxApiAccessToken={
-          //   "pk.eyJ1IjoiZGlub2pzIiwiYSI6ImNrMXIybWIzZTAwdXozbnBrZzlnOWNidzkifQ.Zs9R8K81ZSvVVizvzAXmfg"
-          // }
+            mapStyle={this.state.style}
+            mapboxApiAccessToken={
+              "pk.eyJ1IjoiZGlub2pzIiwiYSI6ImNrMXIybWIzZTAwdXozbnBrZzlnOWNidzkifQ.Zs9R8K81ZSvVVizvzAXmfg"
+            }
           />
         </DeckGL>
 

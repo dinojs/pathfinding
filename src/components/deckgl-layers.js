@@ -64,7 +64,7 @@ export function renderLayers(props) {
         //Format array [x,y,z]
         getPosition: d => [d[1], d[2]],
         getFillColor: [0, 128, 255],
-        getRadius: d => 10,
+        getRadius: 7,
         opacity: 1, //Put 0 for invisable
         pickable: true,
         radiusMinPixels: 0.25,
