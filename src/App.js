@@ -26,6 +26,7 @@ export default class App extends Component {
         y: 0,
         hoveredObject: null
       },
+      graph: null,
       timestampCounter: null,
       trailLength: 200, //Can't be null
       click: { clickedOject: null },
@@ -77,20 +78,23 @@ export default class App extends Component {
   processData = () => {
     const data = require("./data/nodes.json");
     const graph = data[0];
-    let nodes = [];
+
+    let nodesToDisplay = [];
 
     //const string = JSON.stringify(data[0]);
     for (let i in graph) {
-      nodes.push([i, graph[i].lon, graph[i].lat]);
+      nodesToDisplay.push([i, graph[i].lon, graph[i].lat]);
     }
 
     this.setState({
-      nodesToDisplay: nodes,
+      graph,
+      nodesToDisplay,
       pathToDisplay: new Map()
     });
   };
   //////////////////////////////////
-  recustructPath = graph => {
+  recustructPath = () => {
+    let graph = this.state.graph;
     let path = this.state.path;
     let current = this.state.end;
     let backwards = [];
@@ -112,7 +116,7 @@ export default class App extends Component {
 
     for (let i of backwards) {
       timestampCounter++;
-      nodes.push([graph[i].lon, graph[i].lat, 22]); //x, y, z
+      nodes.push([graph[i].lon, graph[i].lat, 22]); //x, y, z (path elevation)
       timestamp.push(timestampCounter);
     }
     this.setState({ timestampCounter: timestamp.pop() });
@@ -130,8 +134,7 @@ export default class App extends Component {
   };
 
   bfs = () => {
-    const data = require("./data/nodes.json");
-    const graph = data[0];
+    const graph = this.state.graph;
     const timer = Date.now();
     let currentFrontier = [this.state.start];
     let nextFrontier = [];
@@ -154,8 +157,8 @@ export default class App extends Component {
       nodes.push([current, graph[current].lon, graph[current].lat]);
 
       if (current === this.state.end) {
-        this.animateNodes(graph, nodes, path);
-        console.log(`Run time: ${Date.now() - timer} ms`);
+        this.animateNodes(nodes, path);
+        console.log(`${nodes.length} nodes visted in ${Date.now() - timer} ms`);
         break;
       }
 
@@ -167,8 +170,8 @@ export default class App extends Component {
       }
     }
     if (!currentFrontier.length && !nextFrontier.length) {
-      this.animateNodesNoPath(nodes, path);
-      console.log(`Run time: ${Date.now() - timer} ms`);
+      this.animateNodes(nodes, path);
+      console.log(`${nodes.length} nodes visted in ${Date.now() - timer} ms`);
       console.log(
         `Path not found, ${current} possible dead end or all the adjacent nodes have already been visited`
       );
@@ -176,8 +179,7 @@ export default class App extends Component {
   };
 
   dfs = () => {
-    const data = require("./data/nodes.json");
-    const graph = data[0];
+    const graph = this.state.graph;
     const timer = Date.now();
     let stack = [this.state.start];
     let frontier = [];
@@ -193,9 +195,8 @@ export default class App extends Component {
       nodes.push([current, graph[current].lon, graph[current].lat]);
 
       if (current === this.state.end) {
-        console.log(`Node found`);
-        this.animateNodes(graph, nodes, path);
-        console.log(`Run time: ${Date.now() - timer} ms`);
+        this.animateNodes(nodes, path);
+        console.log(`${nodes.length} nodes visted in ${Date.now() - timer} ms`);
         break;
       }
 
@@ -207,47 +208,92 @@ export default class App extends Component {
         });
     }
     if (!stack.length) {
-      this.animateNodesNoPath(nodes, path);
-      console.log(`Run time: ${Date.now() - timer} ms`);
+      this.animateNodes(nodes, path);
+      console.log(`${nodes.length} nodes visted in ${Date.now() - timer} ms`);
       console.log(
         `Path not found, ${current} possible dead end or all the adjacent nodes have already been visited`
       );
     }
   };
 
-  animateNodes(graph, nodes, path, i = 0) {
+  dijkstra = () => {
+    const graph = this.state.graph;
+    const timer = Date.now();
+    let currentFrontier = [this.state.start];
+    let currentWeight = [0];
+    let nextFrontier = [];
+    let nextWeight = [];
+
+    let path = this.state.path;
+    //To reconstruct the path
+    let current, adjNodes;
+    let nodes = [];
+    this.setState({ nodesToDisplay: [] });
+    let cost_so_far = new Map();
+    cost_so_far.set(this.state.start, 0);
+
+    while (currentFrontier.length > 0 || nextFrontier.length > 0) {
+      if (currentFrontier.length === 0) {
+        //Swap
+        [currentFrontier, nextFrontier] = [nextFrontier, currentFrontier];
+        [currentWeight, nextWeight] = [nextWeight, currentWeight];
+      }
+
+      current = currentFrontier.pop();
+      adjNodes = graph[current].adj;
+
+      nodes.push([current, graph[current].lon, graph[current].lat]);
+
+      if (current === this.state.end) {
+        this.animateNodes(nodes, path);
+        console.log(`${nodes.length} nodes visted in ${Date.now() - timer} ms`);
+        break;
+      }
+
+      let i = 0;
+      for (let next of adjNodes) {
+        let new_cost = cost_so_far.get(current) + graph[next].w[i];
+        if (!cost_so_far.has(next) || new_cost < cost_so_far.get(next)) {
+          console.log(cost_so_far.get(next));
+          cost_so_far.set(next, new_cost);
+          let priority = new_cost;
+          //console.log(priority);
+          nextFrontier.push(next);
+          nextWeight.push(priority);
+          path.set(next, current);
+        }
+        i++;
+      }
+    }
+    if (!currentFrontier.length && !nextFrontier.length) {
+      this.animateNodes(nodes, path);
+      console.log(`${nodes.length} nodes visted in ${Date.now() - timer} ms`);
+      console.log(
+        `Path not found, ${current} possible dead end or all the adjacent nodes have already been visited`
+      );
+    }
+  };
+
+  animateNodes(nodes, path, i = 0) {
     this.setState({ nodes });
     this.setState({ path }); //Set visited nodes sequence
     let interval = setInterval(() => {
-      let nodesToDisplay = [...this.state.nodesToDisplay, this.state.nodes[i]];
       this.setState({
-        nodesToDisplay
+        //nodesToDisplay: [...this.state.nodesToDisplay, nodes[i]]
+        nodesToDisplay: this.state.nodesToDisplay.concat([nodes[i]])
       });
 
       i++; //Update every 5 nodes
-      if (i === this.state.nodes.length) {
+      if (i === nodes.length) {
         clearInterval(interval);
-        this.recustructPath(graph, path);
+        if (nodes[nodes.length - 1][0] === this.state.end) {
+          //If end node found
+          this.recustructPath();
+        }
       }
-    }, 0.001);
+    }, 0.00001);
   }
 
-  animateNodesNoPath(nodes, path, i = 0) {
-    this.setState({ nodes });
-    this.setState({ path }); //Set visited nodes sequence
-    let interval = setInterval(() => {
-      let nodesToDisplay = [...this.state.nodesToDisplay, this.state.nodes[i]];
-      this.setState({
-        nodesToDisplay
-      });
-
-      i++;
-
-      if (i === this.state.nodes.length) {
-        clearInterval(interval);
-      }
-    }, 0.0001);
-  }
   ////////////////////////////////////////
   _onHover({ x, y, object }) {
     const label = `Node ${object}`;
@@ -291,6 +337,7 @@ export default class App extends Component {
           ref="child"
           bfs={this.bfs}
           dfs={this.dfs}
+          dks={this.dijkstra}
           processData={this.processData}
           data={this.state.nodesToDisplay}
           onStyleChange={this.onStyleChange}
@@ -322,10 +369,10 @@ export default class App extends Component {
           controller //Allows the user to move the map around
         >
           <StaticMap
-            mapStyle={this.state.style}
-            mapboxApiAccessToken={
-              "pk.eyJ1IjoiZGlub2pzIiwiYSI6ImNrMXIybWIzZTAwdXozbnBrZzlnOWNidzkifQ.Zs9R8K81ZSvVVizvzAXmfg"
-            }
+          // mapStyle={this.state.style}
+          // mapboxApiAccessToken={
+          //   "pk.eyJ1IjoiZGlub2pzIiwiYSI6ImNrMXIybWIzZTAwdXozbnBrZzlnOWNidzkifQ.Zs9R8K81ZSvVVizvzAXmfg"
+          // }
           />
         </DeckGL>
 

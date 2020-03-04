@@ -18,19 +18,19 @@ def create_node(nodes, i):
     length = len(nodes)
     if i == 0:
         pre_node = None
-        next_node = nodes[i]  # I deleted +1
+        next_node = int(nodes[i])  # deleted +1
     elif i == length-1:
-        pre_node = nodes[i-1]
+        pre_node = int(nodes[i-1])
         next_node = None
     else:
-        pre_node = nodes[i-1]
-        next_node = nodes[i+1]
+        pre_node = int(nodes[i-1])
+        next_node = int(nodes[i+1])
     return pre_node, nodes[i], next_node
 
 
 def create_data_info(current_node):
     lat, lon = node_info[current_node]['lat'], node_info[current_node]['lon']
-    data[current_node] = {'lat': lat, 'lon': lon, 'adj': [], 'weight': []}
+    data[current_node] = {'lat': lat, 'lon': lon, 'adj': [], 'w': []}
 
 
 def add_nodes(nodes):
@@ -39,12 +39,13 @@ def add_nodes(nodes):
         pre_node, current_node, next_node = create_node(nodes, i)
         if current_node not in data:
             create_data_info(current_node)
+            data[current_node]['w'].append(randrange(5, 45))
         if pre_node:
             data[current_node]['adj'].append(pre_node)
-            data[current_node]['weight'].append(randrange(5, 45))
+            data[current_node]['w'].append(randrange(5, 45))
         if next_node:
             data[current_node]['adj'].append(next_node)
-            data[current_node]['weight'].append(randrange(5, 45))
+            data[current_node]['w'].append(randrange(5, 45))
 
 
 def create_nodes_info(node):
