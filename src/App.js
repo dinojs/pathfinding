@@ -6,6 +6,8 @@ import { renderLayers } from "./components/deckgl-layers";
 import Navbar from "./components/navbar";
 import { LayerControls, SCATTERPLOT_CONTROLS } from "./components/controls";
 import { tooltipStyle } from "./components/style";
+//import text from ".data/nodes.json"
+import FlatQueue from "flatqueue";
 
 const INITIAL_VIEW_STATE = {
   longitude: -74,
@@ -37,6 +39,7 @@ export default class App extends Component {
       nodesToDisplay: [],
       pathToDisplay: null,
       time: 0,
+      cost: 0,
       settings: Object.keys(SCATTERPLOT_CONTROLS).reduce(
         (accu, key) => ({
           ...accu,
@@ -78,7 +81,6 @@ export default class App extends Component {
   processData = () => {
     const data = require("./data/nodes.json");
     const graph = data[0];
-
     let nodesToDisplay = [];
 
     //const string = JSON.stringify(data[0]);
@@ -101,25 +103,26 @@ export default class App extends Component {
     let nodes = [];
     let timestamp = [];
     let timestampCounter = 1;
-    console.log(
-      `%c Visited: ${path.size} nodes`,
-      "color: #fff; background-color:#6097D0; border-radius: 5px; padding: 2px"
-    );
 
     while (current !== this.state.start) {
       backwards.push(current);
-      current = path.get(current);
+      current = parseInt(path.get(current));
     }
     backwards.push(this.state.start);
     backwards.reverse();
     console.log(`Path length ${backwards.length}`);
-
+    console.log(
+      `%cYou should be travelling at an average of ${(
+        this.state.cost / backwards.length
+      ).toFixed(2)}mph.`,
+      "color: #fff; background-color:#ff6600; border-radius: 5px; padding: 2px"
+    );
     for (let i of backwards) {
       timestampCounter++;
       nodes.push([graph[i].lon, graph[i].lat, 22]); //x, y, z (path elevation)
       timestamp.push(timestampCounter);
     }
-    this.setState({ timestampCounter: timestamp.pop() });
+    this.setState({ timestampCounter });
     const pathToDisplay = [
       {
         path: nodes,
@@ -156,7 +159,7 @@ export default class App extends Component {
 
       nodes.push([current, graph[current].lon, graph[current].lat]);
 
-      if (current === this.state.end) {
+      if (current == this.state.end) {
         this.animateNodes(nodes, path);
         console.log(`${nodes.length} nodes visted in ${Date.now() - timer} ms`);
         break;
@@ -170,7 +173,7 @@ export default class App extends Component {
       }
     }
     if (!currentFrontier.length && !nextFrontier.length) {
-      this.animateNodes(nodes, path);
+      this.animateNodes(nodes);
       console.log(`${nodes.length} nodes visted in ${Date.now() - timer} ms`);
       console.log(
         `Path not found, ${current} possible dead end or all the adjacent nodes have already been visited`
@@ -194,7 +197,7 @@ export default class App extends Component {
       //Display node
       nodes.push([current, graph[current].lon, graph[current].lat]);
 
-      if (current === this.state.end) {
+      if (current == this.state.end) {
         this.animateNodes(nodes, path);
         console.log(`${nodes.length} nodes visted in ${Date.now() - timer} ms`);
         break;
@@ -204,11 +207,11 @@ export default class App extends Component {
         .filter(next => !frontier.includes(next))
         .forEach(next => {
           stack.push(next);
-          path.set(next, current);
+          path.set(Number(next), Number(current));
         });
     }
     if (!stack.length) {
-      this.animateNodes(nodes, path);
+      this.animateNodes(nodes);
       console.log(`${nodes.length} nodes visted in ${Date.now() - timer} ms`);
       console.log(
         `Path not found, ${current} possible dead end or all the adjacent nodes have already been visited`
@@ -219,32 +222,29 @@ export default class App extends Component {
   dijkstra = () => {
     const graph = this.state.graph;
     const timer = Date.now();
-    let currentFrontier = [this.state.start];
-    let currentWeight = [0];
-    let nextFrontier = [];
-    let nextWeight = [];
-
+    const frontier = new FlatQueue();
+    frontier.push(this.state.start, 0);
     let path = this.state.path;
-    //To reconstruct the path
-    let current, adjNodes;
-    let nodes = [];
-    this.setState({ nodesToDisplay: [] });
     let cost_so_far = new Map();
     cost_so_far.set(this.state.start, 0);
 
-    while (currentFrontier.length > 0 || nextFrontier.length > 0) {
-      if (currentFrontier.length === 0) {
-        //Swap
-        [currentFrontier, nextFrontier] = [nextFrontier, currentFrontier];
-        [currentWeight, nextWeight] = [nextWeight, currentWeight];
-      }
-
-      current = currentFrontier.pop();
+    let current, adjNodes;
+    let nodes = [];
+    this.setState({ nodesToDisplay: [] }); //Reset view
+    let pathCounter = 0;
+    while (frontier.length > 0) {
+      current = frontier.pop();
       adjNodes = graph[current].adj;
 
       nodes.push([current, graph[current].lon, graph[current].lat]);
 
-      if (current === this.state.end) {
+      if (current == this.state.end) {
+        let cost = Array.from(cost_so_far)[cost_so_far.size - 1][1];
+        this.setState({ cost });
+        console.log(
+          `%cAnalysed ${pathCounter} different paths, the best one weights ${cost}.`,
+          "color: #fff; background-color:#b32400; border-radius: 5px; padding: 2px"
+        );
         this.animateNodes(nodes, path);
         console.log(`${nodes.length} nodes visted in ${Date.now() - timer} ms`);
         break;
@@ -252,21 +252,25 @@ export default class App extends Component {
 
       let i = 0;
       for (let next of adjNodes) {
-        let new_cost = cost_so_far.get(current) + graph[next].w[i];
-        if (!cost_so_far.has(next) || new_cost < cost_so_far.get(next)) {
-          console.log(cost_so_far.get(next));
+        let new_cost = cost_so_far.get(current) + graph[current].w[i];
+
+        if (!cost_so_far.has(next)) {
           cost_so_far.set(next, new_cost);
-          let priority = new_cost;
-          //console.log(priority);
-          nextFrontier.push(next);
-          nextWeight.push(priority);
+          // let priority = new_cost;
+          frontier.push(next, new_cost);
+          path.set(next, current);
+        } else if (new_cost < cost_so_far.get(next)) {
+          pathCounter++;
+          cost_so_far.set(next, new_cost);
+          frontier.push(next, new_cost);
           path.set(next, current);
         }
         i++;
       }
     }
-    if (!currentFrontier.length && !nextFrontier.length) {
-      this.animateNodes(nodes, path);
+
+    if (!frontier.length) {
+      this.animateNodes(nodes);
       console.log(`${nodes.length} nodes visted in ${Date.now() - timer} ms`);
       console.log(
         `Path not found, ${current} possible dead end or all the adjacent nodes have already been visited`
@@ -274,20 +278,21 @@ export default class App extends Component {
     }
   };
 
-  animateNodes(nodes, path, i = 0) {
+  animateNodes(nodes, path = null, i = 0) {
     this.setState({ nodes });
-    this.setState({ path }); //Set visited nodes sequence
+    //let speed = Math.floor(nodes.length / 10000);
     let interval = setInterval(() => {
       this.setState({
         //nodesToDisplay: [...this.state.nodesToDisplay, nodes[i]]
         nodesToDisplay: this.state.nodesToDisplay.concat([nodes[i]])
       });
+      i++;
 
-      i++; //Update every 5 nodes
       if (i === nodes.length) {
         clearInterval(interval);
-        if (nodes[nodes.length - 1][0] === this.state.end) {
+        if (nodes[nodes.length - 1][0] == this.state.end) {
           //If end node found
+          this.setState({ path }); //Set visited nodes sequence
           this.recustructPath();
         }
       }
@@ -306,8 +311,8 @@ export default class App extends Component {
     }
 
     this.state.start
-      ? this.setState({ end: object[0] })
-      : this.setState({ start: object[0] });
+      ? this.setState({ end: parseInt(object[0]) })
+      : this.setState({ start: parseInt(object[0]) });
 
     //Start and End can't be the same
     if (this.state.start === this.state.end) {
@@ -369,10 +374,10 @@ export default class App extends Component {
           controller //Allows the user to move the map around
         >
           <StaticMap
-          // mapStyle={this.state.style}
-          // mapboxApiAccessToken={
-          //   "pk.eyJ1IjoiZGlub2pzIiwiYSI6ImNrMXIybWIzZTAwdXozbnBrZzlnOWNidzkifQ.Zs9R8K81ZSvVVizvzAXmfg"
-          // }
+            mapStyle={this.state.style}
+            mapboxApiAccessToken={
+              "pk.eyJ1IjoiZGlub2pzIiwiYSI6ImNrMXIybWIzZTAwdXozbnBrZzlnOWNidzkifQ.Zs9R8K81ZSvVVizvzAXmfg"
+            }
           />
         </DeckGL>
 

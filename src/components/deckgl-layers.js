@@ -8,6 +8,9 @@ const URL =
 const trips =
   "https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/trips/trips-v7.json";
 
+const seen = [0, 128, 255];
+const notseen = [255, 0, 128];
+
 const ambientLight = new AmbientLight({
   color: [255, 255, 255],
   intensity: 1.0
@@ -48,7 +51,7 @@ export function renderLayers(props) {
   //Distructuring arguments
   const {
     data,
-    path,
+    path = trips,
     time,
     trailLength,
     onHover,

@@ -27,6 +27,7 @@ class navbar extends Component {
         break;
       case "dks":
         this.props.dks();
+        break;
       default:
         console.log("No algorithm selected!");
     }
@@ -36,7 +37,9 @@ class navbar extends Component {
     const algorithms = [
       { value: "bfs", label: "Bread-First Search" },
       { value: "dfs", label: "Depth-First Search" },
-      { value: "dks", label: "Dijkstra’s" }
+      { value: "dks", label: "Dijkstra’s" },
+      { value: "gbf", label: "Greedy Best First Search" },
+      { value: "astar", label: "A* Algorithm" }
     ];
 
     return (
