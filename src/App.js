@@ -327,6 +327,58 @@ export default class App extends Component {
     }
   };
 
+  astar = () => {
+    const graph = this.state.graph;
+    const timer = Date.now();
+    const frontier = new FlatQueue();
+    frontier.push(this.state.start, 0);
+    let path = this.state.path;
+    let cost_so_far = new Map();
+    cost_so_far.set(this.state.start, 0);
+
+    let current, adjNodes;
+    let nodes = [];
+    this.setState({ nodesToDisplay: [] }); //Reset view
+    let pathCounter = 0;
+    while (frontier.length > 0) {
+      current = frontier.pop(); //remove smallest item
+      adjNodes = graph[current].adj;
+
+      nodes.push([current, graph[current].lon, graph[current].lat]);
+
+      if (current == this.state.end) {
+        let cost = Array.from(cost_so_far)[cost_so_far.size - 1][1];
+        this.setState({ cost });
+        console.log(
+          `%cAnalysed ${pathCounter} different paths, the best one weights ${cost}.`,
+          "color: #fff; background-color:#b32400; border-radius: 5px; padding: 2px"
+        );
+        this.animateNodes(nodes, path);
+        console.log(`${nodes.length} nodes visted in ${Date.now() - timer} ms`);
+        break;
+      }
+
+      let i = 0;
+      for (let next of adjNodes) {
+        let new_cost = cost_so_far.get(current) + graph[current].w[i];
+
+        if (!cost_so_far.has(next)) {
+          cost_so_far.set(next, new_cost);
+          let priority = new_cost + this.heuristic(this.state.end, next);
+          frontier.push(next, priority);
+          path.set(next, current);
+          console.log(priority);
+        } else if (new_cost < cost_so_far.get(next)) {
+          pathCounter++;
+          cost_so_far.set(next, new_cost);
+          frontier.push(next, new_cost);
+          path.set(next, current);
+        }
+        i++;
+      }
+    }
+  };
+
   animateNodes(nodes, path = null, i = 0) {
     this.setState({ nodes });
     //let speed = Math.floor(nodes.length / 10000);
@@ -393,6 +445,7 @@ export default class App extends Component {
           dfs={this.dfs}
           dks={this.dijkstra}
           gbf={this.gbf}
+          astar={this.astar}
           processData={this.processData}
           data={this.state.nodesToDisplay}
           onStyleChange={this.onStyleChange}

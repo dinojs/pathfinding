@@ -31,6 +31,9 @@ class navbar extends Component {
       case "gbf":
         this.props.gbf();
         break;
+      case "astar":
+        this.props.astar();
+        break;
       default:
         console.log("No algorithm selected!");
     }
