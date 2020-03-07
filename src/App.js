@@ -233,7 +233,7 @@ export default class App extends Component {
     this.setState({ nodesToDisplay: [] }); //Reset view
     let pathCounter = 0;
     while (frontier.length > 0) {
-      current = frontier.pop();
+      current = frontier.pop(); //remove smallest item
       adjNodes = graph[current].adj;
 
       nodes.push([current, graph[current].lon, graph[current].lat]);
@@ -269,6 +269,55 @@ export default class App extends Component {
       }
     }
 
+    if (!frontier.length) {
+      this.animateNodes(nodes);
+      console.log(`${nodes.length} nodes visted in ${Date.now() - timer} ms`);
+      console.log(
+        `Path not found, ${current} possible dead end or all the adjacent nodes have already been visited`
+      );
+    }
+  };
+  heuristic = (a, b) => {
+    //Manhattan distance
+    const graph = this.state.graph;
+    return (
+      Math.abs(graph[a].lon - graph[b].lon) +
+      Math.abs(graph[a].lat - graph[b].lat)
+    );
+  };
+
+  gbf = () => {
+    //Greedy Best First Search
+    const graph = this.state.graph;
+    const timer = Date.now();
+    const frontier = new FlatQueue();
+    frontier.push(this.state.start, 0);
+    let path = this.state.path;
+
+    let current, adjNodes;
+    let nodes = [];
+    this.setState({ nodesToDisplay: [] }); //Reset view
+
+    while (frontier.length > 0) {
+      current = frontier.pop(); //remove smallest item
+      adjNodes = graph[current].adj;
+
+      nodes.push([current, graph[current].lon, graph[current].lat]);
+
+      if (current == this.state.end) {
+        this.animateNodes(nodes, path);
+        console.log(`${nodes.length} nodes visted in ${Date.now() - timer} ms`);
+        break;
+      }
+
+      for (let next of adjNodes) {
+        if (!path.has(next)) {
+          let priority = this.heuristic(this.state.end, next); //Destination, currrent node
+          frontier.push(next, priority);
+          path.set(next, current);
+        }
+      }
+    }
     if (!frontier.length) {
       this.animateNodes(nodes);
       console.log(`${nodes.length} nodes visted in ${Date.now() - timer} ms`);
@@ -343,6 +392,7 @@ export default class App extends Component {
           bfs={this.bfs}
           dfs={this.dfs}
           dks={this.dijkstra}
+          gbf={this.gbf}
           processData={this.processData}
           data={this.state.nodesToDisplay}
           onStyleChange={this.onStyleChange}
@@ -374,10 +424,10 @@ export default class App extends Component {
           controller //Allows the user to move the map around
         >
           <StaticMap
-            mapStyle={this.state.style}
-            mapboxApiAccessToken={
-              "pk.eyJ1IjoiZGlub2pzIiwiYSI6ImNrMXIybWIzZTAwdXozbnBrZzlnOWNidzkifQ.Zs9R8K81ZSvVVizvzAXmfg"
-            }
+          // mapStyle={this.state.style}
+          // mapboxApiAccessToken={
+          //   "pk.eyJ1IjoiZGlub2pzIiwiYSI6ImNrMXIybWIzZTAwdXozbnBrZzlnOWNidzkifQ.Zs9R8K81ZSvVVizvzAXmfg"
+          // }
           />
         </DeckGL>
 

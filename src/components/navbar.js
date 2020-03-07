@@ -28,6 +28,9 @@ class navbar extends Component {
       case "dks":
         this.props.dks();
         break;
+      case "gbf":
+        this.props.gbf();
+        break;
       default:
         console.log("No algorithm selected!");
     }
