@@ -95,47 +95,6 @@ export default class App extends Component {
     });
   };
   //////////////////////////////////
-  recustructPath = () => {
-    let graph = this.state.graph;
-    let path = this.state.path;
-    let current = this.state.end;
-    let backwards = [];
-    let nodes = [];
-    let timestamp = [];
-    let timestampCounter = 1;
-
-    while (current !== this.state.start) {
-      backwards.push(current);
-      current = parseInt(path.get(current));
-    }
-    backwards.push(this.state.start);
-    backwards.reverse();
-    console.log(`Path length ${backwards.length}`);
-    console.log(
-      `%cYou should be travelling at an average of ${(
-        this.state.cost / backwards.length
-      ).toFixed(2)}mph.`,
-      "color: #fff; background-color:#ff6600; border-radius: 5px; padding: 2px"
-    );
-    for (let i of backwards) {
-      timestampCounter++;
-      nodes.push([graph[i].lon, graph[i].lat, 22]); //x, y, z (path elevation)
-      timestamp.push(timestampCounter);
-    }
-    this.setState({ timestampCounter });
-    const pathToDisplay = [
-      {
-        path: nodes,
-        timestamps: timestamp
-      }
-    ];
-
-    this.setState({
-      pathToDisplay
-    });
-    this.animatePath();
-  };
-
   bfs = () => {
     const graph = this.state.graph;
     const timer = Date.now();
@@ -268,7 +227,6 @@ export default class App extends Component {
         i++;
       }
     }
-
     if (!frontier.length) {
       this.animateNodes(nodes);
       console.log(`${nodes.length} nodes visted in ${Date.now() - timer} ms`);
@@ -367,7 +325,6 @@ export default class App extends Component {
           let priority = new_cost + this.heuristic(this.state.end, next);
           frontier.push(next, priority);
           path.set(next, current);
-          console.log(priority);
         } else if (new_cost < cost_so_far.get(next)) {
           pathCounter++;
           cost_so_far.set(next, new_cost);
@@ -377,14 +334,87 @@ export default class App extends Component {
         i++;
       }
     }
+    if (!frontier.length) {
+      this.animateNodes(nodes);
+      console.log(`${nodes.length} nodes visted in ${Date.now() - timer} ms`);
+      console.log(
+        `Path not found, ${current} possible dead end or all the adjacent nodes have already been visited`
+      );
+    }
+  };
+  recustructPath = () => {
+    let graph = this.state.graph;
+    let path = this.state.path;
+    let current = this.state.end;
+    let backwards = [];
+    let nodes = [];
+    let timestamp = [];
+    let timestampCounter = 1;
+    let distanceNodes = [];
+
+    while (current !== this.state.start) {
+      backwards.push(current);
+      current = parseInt(path.get(current));
+    }
+    backwards.push(this.state.start);
+    backwards.reverse();
+
+    for (let i of backwards) {
+      timestampCounter++;
+      nodes.push([graph[i].lon, graph[i].lat, 22]); //x, y, z (path elevation)
+      timestamp.push(timestampCounter);
+    }
+    this.setState({ timestampCounter });
+    const pathToDisplay = [
+      {
+        path: nodes,
+        timestamps: timestamp
+      }
+    ];
+
+    this.setState({
+      pathToDisplay
+    });
+    //Calculate total path distance
+    for (let i = 0; i < backwards.length - 1; i++) {
+      distanceNodes.push(this.haversine(backwards[i], backwards[i + 1]));
+    }
+    let distance = distanceNodes.reduce((a, b) => a + b, 0);
+    console.log(
+      `%cPath length: ${backwards.length} nodes
+Distance: ${distance.toFixed(4)} km or ${(distance / 1.60934).toFixed(4)} miles.
+Average speed: ${(this.state.cost / backwards.length).toFixed(2)}mph.`,
+      "color: #fff; background-color:#ff6600; border-radius: 5px; padding: 2px"
+    );
+
+    this.animatePath();
+  };
+
+  haversine = (a, b) => {
+    //https://www.movable-type.co.uk/scripts/latlong.html
+    Math.radians = function(degrees) {
+      return (degrees * Math.PI) / 180;
+    };
+
+    const graph = this.state.graph;
+    const R = 6371; // Radius of the earth in km
+    const lat1 = Math.radians(graph[a].lat);
+    const lat2 = Math.radians(graph[b].lat);
+    const Δφ = lat2 - lat1;
+    const Δλ = Math.radians(graph[b].lon - graph[a].lon);
+
+    let distance =
+      Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+      Math.cos(lat1) * Math.cos(lat2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+    let c = 2 * Math.atan2(Math.sqrt(distance), Math.sqrt(1 - distance));
+
+    return R * c; //Distance in km
   };
 
   animateNodes(nodes, path = null, i = 0) {
     this.setState({ nodes });
-    //let speed = Math.floor(nodes.length / 10000);
     let interval = setInterval(() => {
       this.setState({
-        //nodesToDisplay: [...this.state.nodesToDisplay, nodes[i]]
         nodesToDisplay: this.state.nodesToDisplay.concat([nodes[i]])
       });
       i++;
