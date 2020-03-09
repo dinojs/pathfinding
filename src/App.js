@@ -12,10 +12,8 @@ import FlatQueue from "flatqueue";
 const INITIAL_VIEW_STATE = {
   longitude: -74,
   latitude: 40.711,
-  zoom: 13.5,
-  minZoom: 4,
-  maxZoom: 16,
-  pitch: 0,
+  zoom: 13.65,
+  pitch: 35,
   bearing: 0
 };
 
@@ -213,14 +211,11 @@ export default class App extends Component {
       for (let next of adjNodes) {
         let new_cost = cost_so_far.get(current) + graph[current].w[i];
 
-        if (!cost_so_far.has(next)) {
+        if (!cost_so_far.has(next) || new_cost < cost_so_far.get(next)) {
+          if (new_cost < cost_so_far.get(next)) pathCounter++;
+
           cost_so_far.set(next, new_cost);
           // let priority = new_cost;
-          frontier.push(next, new_cost);
-          path.set(next, current);
-        } else if (new_cost < cost_so_far.get(next)) {
-          pathCounter++;
-          cost_so_far.set(next, new_cost);
           frontier.push(next, new_cost);
           path.set(next, current);
         }
@@ -252,7 +247,7 @@ export default class App extends Component {
     frontier.push(this.state.start, 0);
     let path = this.state.path;
 
-    let current, adjNodes;
+    let current, adjNodes, priority;
     let nodes = [];
     this.setState({ nodesToDisplay: [] }); //Reset view
 
@@ -270,7 +265,7 @@ export default class App extends Component {
 
       for (let next of adjNodes) {
         if (!path.has(next)) {
-          let priority = this.heuristic(this.state.end, next); //Destination, currrent node
+          priority = this.heuristic(this.state.end, next); //Destination, currrent node
           frontier.push(next, priority);
           path.set(next, current);
         }
@@ -293,8 +288,9 @@ export default class App extends Component {
     let path = this.state.path;
     let cost_so_far = new Map();
     cost_so_far.set(this.state.start, 0);
+    let test = [];
 
-    let current, adjNodes;
+    let current, adjNodes, priority;
     let nodes = [];
     this.setState({ nodesToDisplay: [] }); //Reset view
     let pathCounter = 0;
@@ -303,12 +299,13 @@ export default class App extends Component {
       adjNodes = graph[current].adj;
 
       nodes.push([current, graph[current].lon, graph[current].lat]);
+      test.push(String(current));
 
       if (current == this.state.end) {
         let cost = Array.from(cost_so_far)[cost_so_far.size - 1][1];
         this.setState({ cost });
         console.log(
-          `%cAnalysed ${pathCounter} different paths, the best one weights ${cost}.`,
+          `%cAnalysed ${pathCounter} different paths, the best one costs ${cost}.`,
           "color: #fff; background-color:#b32400; border-radius: 5px; padding: 2px"
         );
         this.animateNodes(nodes, path);
@@ -320,21 +317,20 @@ export default class App extends Component {
       for (let next of adjNodes) {
         let new_cost = cost_so_far.get(current) + graph[current].w[i];
 
-        if (!cost_so_far.has(next)) {
+        if (!cost_so_far.has(next) || new_cost < cost_so_far.get(next)) {
+          if (new_cost < cost_so_far.get(next)) pathCounter++; //How many different paths analysed
+
           cost_so_far.set(next, new_cost);
-          let priority = new_cost + this.heuristic(this.state.end, next);
+          priority = new_cost + this.heuristic(this.state.end, next);
           frontier.push(next, priority);
-          path.set(next, current);
-        } else if (new_cost < cost_so_far.get(next)) {
-          pathCounter++;
-          cost_so_far.set(next, new_cost);
-          frontier.push(next, new_cost);
           path.set(next, current);
         }
         i++;
       }
     }
     if (!frontier.length) {
+      console.log(test);
+
       this.animateNodes(nodes);
       console.log(`${nodes.length} nodes visted in ${Date.now() - timer} ms`);
       console.log(
@@ -344,7 +340,6 @@ export default class App extends Component {
   };
   recustructPath = () => {
     let graph = this.state.graph;
-    let path = this.state.path;
     let current = this.state.end;
     let backwards = [];
     let nodes = [];
@@ -354,7 +349,7 @@ export default class App extends Component {
 
     while (current !== this.state.start) {
       backwards.push(current);
-      current = parseInt(path.get(current));
+      current = parseInt(this.state.path.get(current));
     }
     backwards.push(this.state.start);
     backwards.reverse();
@@ -412,7 +407,6 @@ Average speed: ${(this.state.cost / backwards.length).toFixed(2)}mph.`,
   };
 
   animateNodes(nodes, path = null, i = 0) {
-    this.setState({ nodes });
     let interval = setInterval(() => {
       this.setState({
         nodesToDisplay: this.state.nodesToDisplay.concat([nodes[i]])
@@ -507,10 +501,10 @@ Average speed: ${(this.state.cost / backwards.length).toFixed(2)}mph.`,
           controller //Allows the user to move the map around
         >
           <StaticMap
-          // mapStyle={this.state.style}
-          // mapboxApiAccessToken={
-          //   "pk.eyJ1IjoiZGlub2pzIiwiYSI6ImNrMXIybWIzZTAwdXozbnBrZzlnOWNidzkifQ.Zs9R8K81ZSvVVizvzAXmfg"
-          // }
+            mapStyle={this.state.style}
+            mapboxApiAccessToken={
+              "pk.eyJ1IjoiZGlub2pzIiwiYSI6ImNrMXIybWIzZTAwdXozbnBrZzlnOWNidzkifQ.Zs9R8K81ZSvVVizvzAXmfg"
+            }
           />
         </DeckGL>
 

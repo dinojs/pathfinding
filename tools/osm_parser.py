@@ -39,11 +39,10 @@ def add_nodes(nodes):
         pre_node, current_node, next_node = create_node(nodes, i)
         if current_node not in data:
             create_data_info(current_node)
-            data[current_node]['w'].append(randrange(5, 45))
-        if pre_node:
+        if pre_node and pre_node not in data[current_node]['adj'] and str(current_node) != str(pre_node) and pre_node != next_node:
             data[current_node]['adj'].append(pre_node)
             data[current_node]['w'].append(randrange(5, 45))
-        if next_node:
+        if next_node and next_node not in data[current_node]['adj'] and str(current_node) != str(next_node) and next_node != pre_node:
             data[current_node]['adj'].append(next_node)
             data[current_node]['w'].append(randrange(5, 45))
 
@@ -55,7 +54,7 @@ def create_nodes_info(node):
 
 def store_json(data):
     with open('nodes.json', 'w') as f:
-        f.write(json.dumps(data))
+        f.write(json.dumps([data]))
 
 
 def main():
