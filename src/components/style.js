@@ -18,9 +18,9 @@ export const layerControl = {
   lineHeight: 1.833,
   width: 180,
   position: "absolute",
-  top: "20px",
-  right: "10px",
-  padding: "20px",
+  top: "58px",
+  right: "6px",
+  padding: "10px",
   zIndex: 100,
   background: "white"
 };

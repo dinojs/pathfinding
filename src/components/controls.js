@@ -8,7 +8,6 @@ export const SCATTERPLOT_CONTROLS = {
     value: true
   },
   radiusScale: {
-    displayName: "Scatterplot Radius",
     type: "range",
     value: 0.6,
     step: 2,
@@ -82,7 +81,6 @@ export class LayerControls extends Component {
         {title && <h4>{title}</h4>}
         {Object.keys(settings).map(key => (
           <div key={key}>
-            <label>{propTypes[key].displayName}</label>
             <div style={{ display: "inline-block", float: "right" }}>
               {settings[key]}
             </div>
@@ -133,7 +131,7 @@ const Slider = ({ settingName, value, propType, onChange }) => {
 
   return (
     <div className="Slider">
-      {/* <label htmlFor="customRange1">Example range</label> */}
+      <label htmlFor="customRange1">Scatterplot Radius</label>
       <input
         type="range"
         className="custom-range"

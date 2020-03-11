@@ -507,10 +507,10 @@ Average speed: ${(this.state.cost / backwards.length).toFixed(2)}mph.`,
           controller //Allows the user to move the map around
         >
           <StaticMap
-          // mapStyle={this.state.style}
-          // mapboxApiAccessToken={
-          //   "pk.eyJ1IjoiZGlub2pzIiwiYSI6ImNrMXIybWIzZTAwdXozbnBrZzlnOWNidzkifQ.Zs9R8K81ZSvVVizvzAXmfg"
-          // }
+            mapStyle={this.state.style}
+            mapboxApiAccessToken={
+              "pk.eyJ1IjoiZGlub2pzIiwiYSI6ImNrMXIybWIzZTAwdXozbnBrZzlnOWNidzkifQ.Zs9R8K81ZSvVVizvzAXmfg"
+            }
           />
         </DeckGL>
       </div>
