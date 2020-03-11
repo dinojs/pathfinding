@@ -4,7 +4,6 @@ import { Form } from "react-bootstrap";
 
 export const SCATTERPLOT_CONTROLS = {
   showScatterplot: {
-    displayName: "Show Scatterplot",
     type: "boolean",
     value: true
   },
@@ -12,7 +11,7 @@ export const SCATTERPLOT_CONTROLS = {
     displayName: "Scatterplot Radius",
     type: "range",
     value: 0.6,
-    step: 10,
+    step: 2,
     min: 10,
     max: 10
   }
@@ -117,16 +116,15 @@ const Setting = props => {
 
 const Checkbox = ({ settingName, value, onChange }) => {
   return (
-    <div key={settingName}>
-      <div className="input-group">
-        <input
-          type="checkbox"
-          id={settingName}
-          checked={value}
-          onChange={e => onChange(settingName, e.target.checked)}
-        />
-      </div>
-    </div>
+    <Form>
+      <Form.Check
+        type="switch"
+        id={settingName}
+        checked={value}
+        onChange={e => onChange(settingName, e.target.checked)}
+        label="Show Scatterplot"
+      />
+    </Form>
   );
 };
 
@@ -134,20 +132,18 @@ const Slider = ({ settingName, value, propType, onChange }) => {
   const { max = 100 } = propType;
 
   return (
-    <div key={settingName}>
-      <div className="input-group">
-        <div>
-          <input
-            type="range"
-            id={settingName}
-            min={0}
-            max={max}
-            step={max / 100}
-            value={value}
-            onChange={e => onChange(settingName, Number(e.target.value))}
-          />
-        </div>
-      </div>
+    <div className="Slider">
+      {/* <label htmlFor="customRange1">Example range</label> */}
+      <input
+        type="range"
+        className="custom-range"
+        id="customRange1"
+        min={0}
+        max={max}
+        step={max / 100}
+        value={value}
+        onChange={e => onChange(settingName, Number(e.target.value))}
+      />
     </div>
   );
 };

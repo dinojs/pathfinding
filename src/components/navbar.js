@@ -2,19 +2,63 @@ import React, { Component } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Navbar, Button, Badge, Container } from "react-bootstrap";
 import { MapStylePicker } from "./controls";
+import { Notification } from "./notification";
 import Select from "react-select";
 //import Algorithms from "./algorithms";
+
+const algorithms = [
+  {
+    value: "bfs",
+    label: "Bread-First Search",
+    description: "UNWEIGHTED and GUARANTEES the shortest path!",
+    URL: "https://en.wikipedia.org/wiki/Breadth-first_search"
+  },
+  {
+    value: "dfs",
+    label: "Depth-First Search",
+    description: "UNWEIGHTED and DOESN'T GUARANTEE the shortest path!",
+    URL: "https://en.wikipedia.org/wiki/Depth-first_search"
+  },
+  {
+    value: "dks",
+    label: "Dijkstra’s",
+    description: "WEIGHTED and GUARANTEES the shortest path!",
+    URL: "https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm"
+  },
+  {
+    value: "gbf",
+    label: "Greedy Best First Search",
+    description:
+      "WEIGHTED and DOESN'T GUARANTEE the shortest path. A faster, more heuristic-heavy version of A*",
+    URL: "https://en.wikipedia.org/wiki/Best-first_search"
+  },
+  {
+    value: "astar",
+    label: "A* Algorithm",
+    description:
+      "WEIGHTED and GUARANTEES the shortest path. Probably, the best pathfinding algorithm; uses heuristics to guarantee the shortest path much faster than Dijkstra's Algorithm",
+    URL: "https://en.wikipedia.org/wiki/A*_search_algorithm"
+  }
+];
 
 class navbar extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      algorithm: null
+      algorithm: null,
+      label: "How does it work?",
+      description:
+        "Select a STARTING/DESTINATION point by clicking on the nodes ⮕ Select an ALGORITHM ⮕ Click START. Keep me open if you want to learn more about algorithms while using the site"
     };
   }
 
   handleAlgo(e) {
-    this.setState({ algorithm: e.value });
+    this.setState({
+      algorithm: e.value,
+      label: e.label,
+      description: e.description,
+      URL: e.URL
+    });
   }
 
   handleStart() {
@@ -40,14 +84,6 @@ class navbar extends Component {
   }
 
   render() {
-    const algorithms = [
-      { value: "bfs", label: "Bread-First Search" },
-      { value: "dfs", label: "Depth-First Search" },
-      { value: "dks", label: "Dijkstra’s" },
-      { value: "gbf", label: "Greedy Best First Search" },
-      { value: "astar", label: "A* Algorithm" }
-    ];
-
     return (
       <Navbar
         className="justify-content-start"
@@ -108,6 +144,12 @@ class navbar extends Component {
             </Badge>
           </h6>
         </Badge>
+        <Notification
+          algorithm={this.state.algorithm}
+          label={this.state.label}
+          description={this.state.description}
+          URL={this.state.URL}
+        />
       </Navbar>
     );
   }

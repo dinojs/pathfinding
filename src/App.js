@@ -7,6 +7,7 @@ import Navbar from "./components/navbar";
 import { LayerControls, SCATTERPLOT_CONTROLS } from "./components/controls";
 import { tooltipStyle } from "./components/style";
 //import text from ".data/nodes.json"
+
 import FlatQueue from "flatqueue";
 
 const INITIAL_VIEW_STATE = {
@@ -30,8 +31,8 @@ export default class App extends Component {
       timestampCounter: null,
       trailLength: 200, //Can't be null
       click: { clickedOject: null },
-      start: null,
-      end: null,
+      start: "Start", //So that they show as placeholder
+      end: "Destination",
       nodes: [],
       path: new Map(),
       nodesToDisplay: [],
@@ -463,6 +464,11 @@ Average speed: ${(this.state.cost / backwards.length).toFixed(2)}mph.`,
 
     return (
       <div>
+        <LayerControls
+          settings={this.state.settings}
+          propTypes={SCATTERPLOT_CONTROLS}
+          onChange={settings => this._updateLayerSettings(settings)}
+        />
         <Navbar
           ref="child"
           bfs={this.bfs}
@@ -501,18 +507,12 @@ Average speed: ${(this.state.cost / backwards.length).toFixed(2)}mph.`,
           controller //Allows the user to move the map around
         >
           <StaticMap
-            mapStyle={this.state.style}
-            mapboxApiAccessToken={
-              "pk.eyJ1IjoiZGlub2pzIiwiYSI6ImNrMXIybWIzZTAwdXozbnBrZzlnOWNidzkifQ.Zs9R8K81ZSvVVizvzAXmfg"
-            }
+          // mapStyle={this.state.style}
+          // mapboxApiAccessToken={
+          //   "pk.eyJ1IjoiZGlub2pzIiwiYSI6ImNrMXIybWIzZTAwdXozbnBrZzlnOWNidzkifQ.Zs9R8K81ZSvVVizvzAXmfg"
+          // }
           />
         </DeckGL>
-
-        <LayerControls
-          settings={this.state.settings}
-          propTypes={SCATTERPLOT_CONTROLS}
-          onChange={settings => this._updateLayerSettings(settings)}
-        />
       </div>
     );
   }
