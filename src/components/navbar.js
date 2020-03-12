@@ -123,7 +123,7 @@ class navbar extends Component {
             START
           </Button>
           <Button
-            onClick={() => this.props.processData()}
+            onClick={() => this.props.setInitialView()}
             variant="danger"
             className="mr-sm-1"
             size="md"

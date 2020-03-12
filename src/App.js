@@ -36,7 +36,6 @@ export default class App extends Component {
       click: { clickedOject: null },
       start: "Start", //So that they show as placeholder
       end: "Destination",
-      path: new Map(),
       nodesToDisplay: [],
       pathToDisplay: null,
       time: 0,
@@ -82,15 +81,23 @@ export default class App extends Component {
   processData = () => {
     const data = require("./data/nodes.json");
     const graph = data[0];
-    let nodesToDisplay = [];
 
+    this.setState(
+      {
+        graph
+      },
+      this.setInitialView //Works as await function
+    );
+  };
+
+  setInitialView = () => {
+    let nodesToDisplay = [];
+    const graph = this.state.graph;
     //const string = JSON.stringify(data[0]);
     for (let i in graph) {
       nodesToDisplay.push([i, graph[i].lon, graph[i].lat]);
     }
-
     this.setState({
-      graph,
       nodesToDisplay,
       pathToDisplay: new Map()
     });
@@ -336,7 +343,7 @@ export default class App extends Component {
       );
     }
   };
-  recustructPath = () => {
+  recustructPath = path => {
     let graph = this.state.graph;
     let current = this.state.end;
     let backwards = [];
@@ -347,7 +354,7 @@ export default class App extends Component {
 
     while (current !== this.state.start) {
       backwards.push(current);
-      current = parseInt(this.state.path.get(current));
+      current = parseInt(path.get(current));
     }
     backwards.push(this.state.start);
     backwards.reverse();
@@ -405,19 +412,24 @@ Average speed: ${(this.state.cost / backwards.length).toFixed(2)}mph.`,
   };
 
   animateNodes(nodes, path = null, i = 1) {
+    let visiting = [];
     this.setState({ nodesToDisplay: nodes[0] }); //Avoid page refresh
     let interval = setInterval(() => {
       this.setState({
-        nodesToDisplay: this.state.nodesToDisplay.concat([nodes[i]])
+        nodesToDisplay: this.state.nodesToDisplay.concat([nodes[i]]),
+        visiting: this.state.nodesToDisplay.slice(-8)
       });
+      if ((visiting.length = 8)) {
+        visiting.shift();
+      }
       i++;
-
       if (i === nodes.length) {
         clearInterval(interval);
+        this.setState({ visiting: [] });
         if (nodes[nodes.length - 1][0] == this.state.end) {
           //If end node found
-          this.setState({ path }); //Set visited nodes sequence
-          this.recustructPath();
+
+          this.recustructPath(path); //Set visited nodes sequence
         }
       }
     }, 0.00001);
@@ -475,7 +487,7 @@ Average speed: ${(this.state.cost / backwards.length).toFixed(2)}mph.`,
           dks={this.dijkstra}
           gbf={this.gbf}
           astar={this.astar}
-          processData={this.processData}
+          setInitialView={this.setInitialView}
           data={this.state.nodesToDisplay}
           onStyleChange={this.onStyleChange}
           style={this.state.style}
@@ -495,7 +507,8 @@ Average speed: ${(this.state.cost / backwards.length).toFixed(2)}mph.`,
         <DeckGL
           layers={renderLayers({
             trailLength: this.state.trailLength,
-            data: data,
+            visiting: this.state.visiting,
+            data: [...data],
             path: [...path],
             time: this.state.time,
             onHover: hover => this._onHover(hover),
@@ -508,10 +521,10 @@ Average speed: ${(this.state.cost / backwards.length).toFixed(2)}mph.`,
         >
           <StaticMap // minimum version of reat-map-g
             reuseMaps
-            // mapStyle={this.state.style}
-            // mapboxApiAccessToken={
-            //   "pk.eyJ1IjoiZGlub2pzIiwiYSI6ImNrMXIybWIzZTAwdXozbnBrZzlnOWNidzkifQ.Zs9R8K81ZSvVVizvzAXmfg"
-            // }
+            mapStyle={this.state.style}
+            mapboxApiAccessToken={
+              "pk.eyJ1IjoiZGlub2pzIiwiYSI6ImNrMXIybWIzZTAwdXozbnBrZzlnOWNidzkifQ.Zs9R8K81ZSvVVizvzAXmfg"
+            }
           />
           <div className="mapboxgl-ctrl-bottom-left">
             <NavigationControl

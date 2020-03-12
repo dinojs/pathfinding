@@ -8,9 +8,6 @@ const URL =
 const trips =
   "https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/trips/trips-v7.json";
 
-const seen = [0, 128, 255];
-const notseen = [255, 0, 128];
-
 const ambientLight = new AmbientLight({
   color: [255, 255, 255],
   intensity: 1.0
@@ -51,6 +48,7 @@ export function renderLayers(props) {
   //Distructuring arguments
   const {
     data,
+    visiting,
     path = trips,
     time,
     trailLength,
@@ -78,6 +76,17 @@ export function renderLayers(props) {
         onClick,
         ...settings
       }),
+    settings.showScatterplot &&
+      new ScatterplotLayer({
+        id: "scatterplotVisiting",
+        getPosition: d => [d[1], d[2]],
+        getFillColor: [255, 51, 51],
+        getRadius: 7,
+        opacity: 1, //Put 0 for invisable
+        radiusMinPixels: 0.25,
+        radiusMaxPixels: 10,
+        data: visiting
+      }),
 
     new PolygonLayer({
       id: "ground",
@@ -98,6 +107,7 @@ export function renderLayers(props) {
       getFillColor: theme.buildingColor,
       material: theme.material
     }),
+
     new TripsLayer({
       id: "trips",
       data: path,
