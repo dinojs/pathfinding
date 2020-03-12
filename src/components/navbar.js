@@ -45,7 +45,7 @@ class navbar extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      algorithm: null,
+      algorithm: "Algorithm",
       label: "How does it work?",
       description:
         "Select a STARTING/DESTINATION point by clicking on the nodes ⮕ Select an ALGORITHM ⮕ Click START. Keep me open if you want to learn more about algorithms while using the site"
@@ -112,7 +112,7 @@ class navbar extends Component {
             options={algorithms}
             className="col-2 "
             onChange={e => this.handleAlgo(e)}
-            placeholder="Algorithm"
+            placeholder={this.state.algorithm}
           />
           <Button
             onClick={() => this.handleStart()} //()=> so that it doesn't get called as soon as mounted

@@ -1,5 +1,9 @@
 import React, { Component } from "react";
-import { StaticMap } from "react-map-gl";
+import {
+  _MapContext as MapContext,
+  NavigationControl,
+  StaticMap
+} from "react-map-gl";
 import DeckGL from "deck.gl";
 import { renderLayers } from "./components/deckgl-layers";
 //import { Algorithms } from "./components/algorithms";
@@ -22,6 +26,13 @@ export default class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      viewport: {
+        longitude: -74,
+        latitude: 40.711,
+        zoom: 13.65,
+        pitch: 35,
+        bearing: 0
+      },
       hover: {
         x: 0,
         y: 0,
@@ -33,7 +44,6 @@ export default class App extends Component {
       click: { clickedOject: null },
       start: "Start", //So that they show as placeholder
       end: "Destination",
-      nodes: [],
       path: new Map(),
       nodesToDisplay: [],
       pathToDisplay: null,
@@ -457,6 +467,7 @@ Average speed: ${(this.state.cost / backwards.length).toFixed(2)}mph.`,
   render() {
     const data = this.state.nodesToDisplay;
     const path = this.state.pathToDisplay;
+    const { viewport } = this.state;
     if (data.length === 0) {
       return null;
     }
@@ -496,22 +507,34 @@ Average speed: ${(this.state.cost / backwards.length).toFixed(2)}mph.`,
         <DeckGL
           layers={renderLayers({
             trailLength: this.state.trailLength,
-            data: [...data],
+            data: data,
             path: [...path],
             time: this.state.time,
             onHover: hover => this._onHover(hover),
             onClick: click => this._onClick(click),
             settings: this.state.settings
           })}
-          initialViewState={INITIAL_VIEW_STATE}
+          initialViewState={viewport}
           controller //Allows the user to move the map around
+          ContextProvider={MapContext.Provider}
         >
-          <StaticMap
+          <StaticMap // minimum version of reat-map-g
+            reuseMaps
             mapStyle={this.state.style}
             mapboxApiAccessToken={
               "pk.eyJ1IjoiZGlub2pzIiwiYSI6ImNrMXIybWIzZTAwdXozbnBrZzlnOWNidzkifQ.Zs9R8K81ZSvVVizvzAXmfg"
             }
           />
+          <div className="mapboxgl-ctrl-bottom-left">
+            <NavigationControl
+              ref={ref => {
+                if (ref != null) {
+                  ref._uiVersion = 2;
+                }
+              }} //https://github.com/uber/deck.gl/issues/4383
+              // onViewportChange={viewport => this.setState({ viewport })}
+            />
+          </div>
         </DeckGL>
       </div>
     );
