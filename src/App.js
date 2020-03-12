@@ -14,14 +14,6 @@ import { tooltipStyle } from "./components/style";
 
 import FlatQueue from "flatqueue";
 
-const INITIAL_VIEW_STATE = {
-  longitude: -74,
-  latitude: 40.711,
-  zoom: 13.65,
-  pitch: 35,
-  bearing: 0
-};
-
 export default class App extends Component {
   constructor(props) {
     super(props);
@@ -110,11 +102,10 @@ export default class App extends Component {
     let currentFrontier = [this.state.start];
     let nextFrontier = [];
 
-    let path = this.state.path;
+    let path = new Map();
     //To reconstruct the path
     let current, adjNodes;
     let nodes = [];
-    this.setState({ nodesToDisplay: [] });
 
     while (currentFrontier.length > 0 || nextFrontier.length > 0) {
       if (currentFrontier.length === 0) {
@@ -154,10 +145,9 @@ export default class App extends Component {
     const timer = Date.now();
     let stack = [this.state.start];
     let frontier = [];
-    let path = this.state.path;
+    let path = new Map();
     let current;
     let nodes = [];
-    this.setState({ nodesToDisplay: [] });
     while (stack.length) {
       current = stack.pop();
       frontier.push(current);
@@ -192,13 +182,12 @@ export default class App extends Component {
     const timer = Date.now();
     const frontier = new FlatQueue();
     frontier.push(this.state.start, 0);
-    let path = this.state.path;
+    let path = new Map();
     let cost_so_far = new Map();
     cost_so_far.set(this.state.start, 0);
 
     let current, adjNodes;
     let nodes = [];
-    this.setState({ nodesToDisplay: [] }); //Reset view
     let pathCounter = 0;
     while (frontier.length > 0) {
       current = frontier.pop(); //remove smallest item
@@ -256,11 +245,10 @@ export default class App extends Component {
     const timer = Date.now();
     const frontier = new FlatQueue();
     frontier.push(this.state.start, 0);
-    let path = this.state.path;
+    let path = new Map();
 
     let current, adjNodes, priority;
     let nodes = [];
-    this.setState({ nodesToDisplay: [] }); //Reset view
 
     while (frontier.length > 0) {
       current = frontier.pop(); //remove smallest item
@@ -296,14 +284,13 @@ export default class App extends Component {
     const timer = Date.now();
     const frontier = new FlatQueue();
     frontier.push(this.state.start, 0);
-    let path = this.state.path;
+    let path = new Map();
     let cost_so_far = new Map();
     cost_so_far.set(this.state.start, 0);
     let test = [];
 
     let current, adjNodes, priority;
     let nodes = [];
-    this.setState({ nodesToDisplay: [] }); //Reset view
     let pathCounter = 0;
     while (frontier.length > 0) {
       current = frontier.pop(); //remove smallest item
@@ -417,7 +404,8 @@ Average speed: ${(this.state.cost / backwards.length).toFixed(2)}mph.`,
     return R * c; //Distance in km
   };
 
-  animateNodes(nodes, path = null, i = 0) {
+  animateNodes(nodes, path = null, i = 1) {
+    this.setState({ nodesToDisplay: nodes[0] }); //Avoid page refresh
     let interval = setInterval(() => {
       this.setState({
         nodesToDisplay: this.state.nodesToDisplay.concat([nodes[i]])
@@ -520,10 +508,10 @@ Average speed: ${(this.state.cost / backwards.length).toFixed(2)}mph.`,
         >
           <StaticMap // minimum version of reat-map-g
             reuseMaps
-            mapStyle={this.state.style}
-            mapboxApiAccessToken={
-              "pk.eyJ1IjoiZGlub2pzIiwiYSI6ImNrMXIybWIzZTAwdXozbnBrZzlnOWNidzkifQ.Zs9R8K81ZSvVVizvzAXmfg"
-            }
+            // mapStyle={this.state.style}
+            // mapboxApiAccessToken={
+            //   "pk.eyJ1IjoiZGlub2pzIiwiYSI6ImNrMXIybWIzZTAwdXozbnBrZzlnOWNidzkifQ.Zs9R8K81ZSvVVizvzAXmfg"
+            // }
           />
           <div className="mapboxgl-ctrl-bottom-left">
             <NavigationControl
