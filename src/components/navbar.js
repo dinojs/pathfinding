@@ -1,10 +1,19 @@
 import React, { Component } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Navbar, Button, Badge, Container } from "react-bootstrap";
+import { Button, Badge } from "react-bootstrap";
 import { MapStylePicker } from "./controls";
 import { Notification } from "./notification";
 import Select from "react-select";
 //import Algorithms from "./algorithms";
+import {
+  MDBNavbar,
+  MDBNavbarBrand,
+  MDBNavbarNav,
+  MDBNavbarToggler,
+  MDBCollapse,
+  MDBContainer
+} from "mdbreact";
+import { BrowserRouter as Router } from "react-router-dom";
 
 const algorithms = [
   {
@@ -29,7 +38,7 @@ const algorithms = [
     value: "gbf",
     label: "Greedy Best First Search",
     description:
-      "WEIGHTED and DOESN'T GUARANTEE the shortest path. A faster, more heuristic-heavy version of A*",
+      "Can be WEIGHTED and DOESN'T GUARANTEE the shortest path. A faster, more heuristic-heavy version of A*",
     URL: "https://en.wikipedia.org/wiki/Best-first_search"
   },
   {
@@ -48,8 +57,15 @@ class navbar extends Component {
       algorithm: "Algorithm",
       label: "How does it work?",
       description:
-        "Select a STARTING/DESTINATION point by clicking on the nodes ⮕ Select an ALGORITHM ⮕ Click START. Keep me open if you want to learn more about algorithms while using the site"
+        "Select a STARTING/DESTINATION point by clicking on the nodes ⮕ Select an ALGORITHM ⮕ Click START. Keep me open if you want to learn more about algorithms while using the site",
+      collapse: false
     };
+    this.onClick = this.onClick.bind(this);
+  }
+  onClick() {
+    this.setState({
+      collapse: !this.state.collapse
+    });
   }
 
   handleAlgo(e) {
@@ -85,72 +101,88 @@ class navbar extends Component {
 
   render() {
     return (
-      <Navbar
-        className="justify-content-start"
-        bg="secondary"
-        variant="dark"
-        fixed="top"
-      >
-        {/* <Badge variant="dark">
-          <h6>Pathfinding Visualiser</h6>
-        </Badge> */}
+      <div>
+        <header>
+          <Router>
+            <MDBNavbar
+              color="bg-primary"
+              fixed="top"
+              dark
+              expand="md"
+              fixed="top"
+              scrolling
+              transparent
+            >
+              <MDBContainer>
+                {/* <MDBNavbarBrand href="/">
+                <strong>Pathfinding</strong>
+              </MDBNavbarBrand> */}
+                {!this.state.isWideEnough && (
+                  <MDBNavbarToggler onClick={this.onClick} />
+                )}
+                <MDBCollapse isOpen={this.state.collapse} navbar>
+                  <MDBNavbarNav centre>
+                    <Select
+                      options={algorithms}
+                      className="col-2 "
+                      placeholder={this.props.start}
+                      size="sm"
+                    />
 
-        <Navbar.Collapse className="justify-content-center">
-          <Select
-            options={algorithms}
-            className="col-2 "
-            placeholder={this.props.start}
-            size="sm"
-          />
-          <Select
-            options={algorithms}
-            className="col-2  "
-            placeholder={this.props.end}
-          />
+                    <Select
+                      options={algorithms}
+                      className="col-2  "
+                      placeholder={this.props.end}
+                    />
 
-          <Select
-            options={algorithms}
-            className="col-2 "
-            onChange={e => this.handleAlgo(e)}
-            placeholder={this.state.algorithm}
-          />
-          <Button
-            onClick={() => this.handleStart()} //()=> so that it doesn't get called as soon as mounted
-            variant="primary"
-            className="mr-sm-1 font-weight-bold"
-            size="md"
-          >
-            START
-          </Button>
-          <Button
-            onClick={() => this.props.setInitialView()}
-            variant="danger"
-            className="mr-sm-1"
-            size="md"
-          >
-            CLEAR
-          </Button>
-          <MapStylePicker
-            onStyleChange={this.props.onStyleChange}
-            currentStyle={this.props.style}
-          />
-        </Navbar.Collapse>
+                    <Select
+                      options={algorithms}
+                      className="col-2 "
+                      onChange={e => this.handleAlgo(e)}
+                      placeholder={this.state.algorithm}
+                    />
+                    <Button
+                      onClick={() => this.handleStart()} //()=> so that it doesn't get called as soon as mounted
+                      variant="primary"
+                      className="mr-sm-1 font-weight-bold"
+                      size="md"
+                    >
+                      START
+                    </Button>
+                    <Button
+                      onClick={() => this.props.setInitialView()}
+                      variant="danger"
+                      className="mr-sm-1"
+                      size="md"
+                    >
+                      CLEAR
+                    </Button>
+                    <MapStylePicker
+                      onStyleChange={this.props.onStyleChange}
+                      currentStyle={this.props.style}
+                    />
 
-        <Badge variant="dark">
-          <h6>
-            Nodes visited:{" "}
-            <Badge pill variant="light">
-              {this.props.data.length}
-            </Badge>
-          </h6>
-        </Badge>
+                    <Badge variant="dark">
+                      <h6>
+                        Nodes visited:{" "}
+                        <Badge pill variant="light">
+                          {this.props.data}
+                        </Badge>
+                      </h6>
+                    </Badge>
+                  </MDBNavbarNav>
+                </MDBCollapse>
+              </MDBContainer>
+            </MDBNavbar>
+          </Router>
+        </header>
         <Notification
           algorithm={this.state.algorithm}
           label={this.state.label}
           description={this.state.description}
           URL={this.state.URL}
         />
-      </Navbar>
+      </div>
     );
   }
 }

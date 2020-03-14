@@ -120,9 +120,9 @@ export function renderLayers(props) {
       id: "path-layer",
       data: path,
       pickable: true,
-      widthMinPixels: 2,
+      widthMinPixels: 1,
       getPath: d => d.path,
-      getColor: d => [255, 69, 0],
+      getColor: d => [253, 128, 93],
       getWidth: d => 2
     }),
 
@@ -133,7 +133,7 @@ export function renderLayers(props) {
       getTimestamps: d => d.timestamps,
       getColor: [253, 128, 93],
       opacity: 0.8,
-      widthMinPixels: 6,
+      widthMinPixels: 4,
       rounded: true,
       trailLength,
       currentTime: time,

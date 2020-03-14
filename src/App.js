@@ -8,10 +8,10 @@ import DeckGL from "deck.gl";
 import { renderLayers } from "./components/deckgl-layers";
 //import { Algorithms } from "./components/algorithms";
 import Navbar from "./components/navbar";
+import { ListGroup } from "./components/list-group";
 import { LayerControls, SCATTERPLOT_CONTROLS } from "./components/controls";
 import { tooltipStyle } from "./components/style";
 //import text from ".data/nodes.json"
-
 import FlatQueue from "flatqueue";
 
 export default class App extends Component {
@@ -37,7 +37,6 @@ export default class App extends Component {
       start: "Start", //So that they show as placeholder
       end: "Destination",
       nodesToDisplay: [],
-      pathToDisplay: null,
       time: 0,
       cost: 0,
       settings: Object.keys(SCATTERPLOT_CONTROLS).reduce(
@@ -83,9 +82,7 @@ export default class App extends Component {
     const graph = data[0];
 
     this.setState(
-      {
-        graph
-      },
+      { graph },
       this.setInitialView //Works as await function
     );
   };
@@ -99,7 +96,9 @@ export default class App extends Component {
     }
     this.setState({
       nodesToDisplay,
-      pathToDisplay: new Map()
+      pathToDisplay: null, //Reset path
+      tripToDisplay: null, //Reset trip animation
+      visiting: null //Reset Start and End
     });
   };
   //////////////////////////////////
@@ -367,11 +366,7 @@ export default class App extends Component {
       timestamp.push(timestampCounter);
     }
     this.setState({ timestampCounter });
-    const pathToDisplay = [
-      {
-        path: nodes
-      }
-    ];
+    const pathToDisplay = [{ path: nodes }];
     const tripToDisplay = [
       {
         trip,
@@ -393,7 +388,7 @@ Distance: ${distance.toFixed(4)} km or ${(distance / 1.60934).toFixed(4)} miles.
 Average speed: ${(this.state.cost / backwards.length).toFixed(2)}mph.`,
       "color: #fff; background-color:#ff6600; border-radius: 5px; padding: 2px"
     );
-
+    this.setState({ distance });
     this.animatePath();
   };
 
@@ -482,11 +477,6 @@ Average speed: ${(this.state.cost / backwards.length).toFixed(2)}mph.`,
 
     return (
       <div>
-        <LayerControls
-          settings={this.state.settings}
-          propTypes={SCATTERPLOT_CONTROLS}
-          onChange={settings => this._updateLayerSettings(settings)}
-        />
         <Navbar
           ref="child"
           bfs={this.bfs}
@@ -495,12 +485,19 @@ Average speed: ${(this.state.cost / backwards.length).toFixed(2)}mph.`,
           gbf={this.gbf}
           astar={this.astar}
           setInitialView={this.setInitialView}
-          data={this.state.nodesToDisplay}
+          data={this.state.nodesToDisplay.length}
           onStyleChange={this.onStyleChange}
           style={this.state.style}
           start={this.state.start}
           end={this.state.end}
         />
+
+        <LayerControls
+          settings={this.state.settings}
+          propTypes={SCATTERPLOT_CONTROLS}
+          onChange={settings => this._updateLayerSettings(settings)}
+        />
+
         {hover.hoveredObject && (
           <div
             style={{
@@ -531,7 +528,8 @@ Average speed: ${(this.state.cost / backwards.length).toFixed(2)}mph.`,
             reuseMaps
             mapStyle={this.state.style}
             mapboxApiAccessToken={
-              "pk.eyJ1IjoiZGlub2pzIiwiYSI6ImNrMXIybWIzZTAwdXozbnBrZzlnOWNidzkifQ.Zs9R8K81ZSvVVizvzAXmfg"
+              //   "pk.eyJ1IjoiZGlub2pzIiwiYSI6ImNrMXIybWIzZTAwdXozbnBrZzlnOWNidzkifQ.Zs9R8K81ZSvVVizvzAXmfg"
+              "pk.eyJ1IjoidWJlcmRhdGEiLCJhIjoiY2pudzRtaWloMDAzcTN2bzN1aXdxZHB5bSJ9.2bkj3IiRC8wj3jLThvDGdA"
             }
           />
           <div className="mapboxgl-ctrl-bottom-left">
@@ -545,6 +543,7 @@ Average speed: ${(this.state.cost / backwards.length).toFixed(2)}mph.`,
             />
           </div>
         </DeckGL>
+        <ListGroup />
       </div>
     );
   }
