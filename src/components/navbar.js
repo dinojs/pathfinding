@@ -91,9 +91,9 @@ class navbar extends Component {
         variant="dark"
         fixed="top"
       >
-        <Badge variant="dark">
+        {/* <Badge variant="dark">
           <h6>Pathfinding Visualiser</h6>
-        </Badge>
+        </Badge> */}
 
         <Navbar.Collapse className="justify-content-center">
           <Select

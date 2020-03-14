@@ -348,6 +348,7 @@ export default class App extends Component {
     let current = this.state.end;
     let backwards = [];
     let nodes = [];
+    let trip = [];
     let timestamp = [];
     let timestampCounter = 1;
     let distanceNodes = [];
@@ -361,19 +362,25 @@ export default class App extends Component {
 
     for (let i of backwards) {
       timestampCounter++;
-      nodes.push([graph[i].lon, graph[i].lat, 22]); //x, y, z (path elevation)
+      nodes.push([graph[i].lon, graph[i].lat]); //PathLayer
+      trip.push([graph[i].lon, graph[i].lat, 10]); //x, y, z (path elevation) //TripsLayer
       timestamp.push(timestampCounter);
     }
     this.setState({ timestampCounter });
     const pathToDisplay = [
       {
-        path: nodes,
+        path: nodes
+      }
+    ];
+    const tripToDisplay = [
+      {
+        trip,
         timestamps: timestamp
       }
     ];
-
     this.setState({
-      pathToDisplay
+      pathToDisplay,
+      tripToDisplay
     });
     //Calculate total path distance
     for (let i = 0; i < backwards.length - 1; i++) {
@@ -419,13 +426,14 @@ Average speed: ${(this.state.cost / backwards.length).toFixed(2)}mph.`,
         nodesToDisplay: this.state.nodesToDisplay.concat([nodes[i]]),
         visiting: this.state.nodesToDisplay.slice(-8)
       });
+
       if ((visiting.length = 8)) {
         visiting.shift();
       }
       i++;
       if (i === nodes.length) {
         clearInterval(interval);
-        this.setState({ visiting: [] });
+        this.setState({ visiting: [nodes[0], nodes[nodes.length - 1]] });
         if (nodes[nodes.length - 1][0] == this.state.end) {
           //If end node found
 
@@ -454,7 +462,6 @@ Average speed: ${(this.state.cost / backwards.length).toFixed(2)}mph.`,
     if (this.state.start === this.state.end) {
       this.setState({ start: null, end: null });
     }
-    //console.log(`Start: ${this.state.start} End: ${this.state.end}`);
   }
 
   onStyleChange = style => {
@@ -509,7 +516,8 @@ Average speed: ${(this.state.cost / backwards.length).toFixed(2)}mph.`,
             trailLength: this.state.trailLength,
             visiting: this.state.visiting,
             data: [...data],
-            path: [...path],
+            path: path,
+            trip: this.state.tripToDisplay,
             time: this.state.time,
             onHover: hover => this._onHover(hover),
             onClick: click => this._onClick(click),

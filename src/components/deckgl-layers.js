@@ -1,12 +1,16 @@
 import { ScatterplotLayer } from "deck.gl";
 import { TripsLayer } from "@deck.gl/geo-layers";
-import { PolygonLayer } from "@deck.gl/layers";
+import { PolygonLayer, IconLayer, PathLayer } from "@deck.gl/layers";
 import { AmbientLight, PointLight, LightingEffect } from "@deck.gl/core";
+
 const URL =
   "https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/trips/buildings.json";
 
 const trips =
   "https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/trips/trips-v7.json";
+
+const START_COLOR = [0, 128, 255];
+const END_COLOR = [255, 0, 128];
 
 const ambientLight = new AmbientLight({
   color: [255, 255, 255],
@@ -43,13 +47,17 @@ const landCover = [
     [-74.0, 40.72]
   ]
 ];
+const ICON_MAPPING = {
+  marker: { x: 0, y: 0, width: 32, height: 32, mask: true }
+};
 
 export function renderLayers(props) {
   //Distructuring arguments
   const {
     data,
     visiting,
-    path = trips,
+    path,
+    trip,
     time,
     trailLength,
     onHover,
@@ -58,6 +66,7 @@ export function renderLayers(props) {
     buildings = URL,
     theme = DEFAULT_THEME
   } = props;
+
   return [
     settings.showScatterplot &&
       new ScatterplotLayer({
@@ -81,7 +90,7 @@ export function renderLayers(props) {
         id: "scatterplotVisiting",
         getPosition: d => [d[1], d[2]],
         getFillColor: [255, 51, 51],
-        getRadius: 7,
+        getRadius: 7.5,
         opacity: 1, //Put 0 for invisable
         radiusMinPixels: 0.25,
         radiusMaxPixels: 10,
@@ -107,11 +116,20 @@ export function renderLayers(props) {
       getFillColor: theme.buildingColor,
       material: theme.material
     }),
+    new PathLayer({
+      id: "path-layer",
+      data: path,
+      pickable: true,
+      widthMinPixels: 2,
+      getPath: d => d.path,
+      getColor: d => [255, 69, 0],
+      getWidth: d => 2
+    }),
 
     new TripsLayer({
       id: "trips",
-      data: path,
-      getPath: d => d.path,
+      data: trip,
+      getPath: d => d.trip,
       getTimestamps: d => d.timestamps,
       getColor: [253, 128, 93],
       opacity: 0.8,
@@ -122,5 +140,21 @@ export function renderLayers(props) {
 
       shadowEnabled: false
     })
+
+    // new IconLayer({
+    //   id: "icon-layer",
+    //   data: [startXY, endXY],
+    //   pickable: true,
+    //   // iconAtlas and iconMapping are required
+    //   // getIcon: return a string
+    //   iconAtlas: "./pin.png",
+    //   iconMapping: ICON_MAPPING,
+    //   getIcon: d => "marker",
+
+    //   sizeScale: 15,
+    //   getPosition: d => [d[1], d[2]],
+    //   getSize: d => 24,
+    //   getColor: d => [255, 255, 255]
+    // })
   ];
 }
