@@ -22,6 +22,8 @@ export class Notification extends Component {
         }}
         style={{
           position: "fixed",
+          fontSize: "12.5px",
+          width: "30rem",
           bottom: "10px",
           right: "10px",
           zIndex: 9999

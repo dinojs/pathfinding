@@ -21,9 +21,9 @@ export default class App extends Component {
       viewport: {
         longitude: -74,
         latitude: 40.711,
-        zoom: 13.65,
-        pitch: 35,
-        bearing: 0
+        zoom: 13.9,
+        pitch: 55,
+        bearing: 45
       },
       hover: {
         x: 0,
@@ -32,11 +32,13 @@ export default class App extends Component {
       },
       graph: null,
       timestampCounter: null,
+      pathLength: 0,
       trailLength: 200, //Can't be null
       click: { clickedOject: null },
       start: "Start", //So that they show as placeholder
       end: "Destination",
       nodesToDisplay: [],
+      nodesVisited: 0, //Frontier length
       time: 0,
       cost: 0,
       settings: Object.keys(SCATTERPLOT_CONTROLS).reduce(
@@ -125,8 +127,10 @@ export default class App extends Component {
       nodes.push([current, graph[current].lon, graph[current].lat]);
 
       if (current == this.state.end) {
+        let runTime = Date.now() - timer;
+        this.setState({ nodesVisited: nodes.length, runTime });
         this.animateNodes(nodes, path);
-        console.log(`${nodes.length} nodes visted in ${Date.now() - timer} ms`);
+
         break;
       }
 
@@ -139,7 +143,7 @@ export default class App extends Component {
     }
     if (!currentFrontier.length && !nextFrontier.length) {
       this.animateNodes(nodes);
-      console.log(`${nodes.length} nodes visted in ${Date.now() - timer} ms`);
+
       console.log(
         `Path not found, ${current} possible dead end or all the adjacent nodes have already been visited`
       );
@@ -162,6 +166,8 @@ export default class App extends Component {
       nodes.push([current, graph[current].lon, graph[current].lat]);
 
       if (current == this.state.end) {
+        let runTime = Date.now() - timer;
+        this.setState({ nodesVisited: nodes.length, runTime });
         this.animateNodes(nodes, path);
         console.log(`${nodes.length} nodes visted in ${Date.now() - timer} ms`);
         break;
@@ -176,7 +182,8 @@ export default class App extends Component {
     }
     if (!stack.length) {
       this.animateNodes(nodes);
-      console.log(`${nodes.length} nodes visted in ${Date.now() - timer} ms`);
+      let runTime = Date.now() - timer;
+      this.setState({ nodesVisted: nodes.length, runTime });
       console.log(
         `Path not found, ${current} possible dead end or all the adjacent nodes have already been visited`
       );
@@ -202,14 +209,15 @@ export default class App extends Component {
       nodes.push([current, graph[current].lon, graph[current].lat]);
 
       if (current == this.state.end) {
+        let runTime = Date.now() - timer;
         let cost = Array.from(cost_so_far)[cost_so_far.size - 1][1];
-        this.setState({ cost });
+        this.setState({ cost, nodesVisited: nodes.length, runTime });
+
+        this.animateNodes(nodes, path);
         console.log(
-          `%cAnalysed ${pathCounter} different paths, the best one weights ${cost}.`,
+          `%cAnalysed ${pathCounter} different paths, the best one costs ${cost}.`,
           "color: #fff; background-color:#b32400; border-radius: 5px; padding: 2px"
         );
-        this.animateNodes(nodes, path);
-        console.log(`${nodes.length} nodes visted in ${Date.now() - timer} ms`);
         break;
       }
 
@@ -263,8 +271,10 @@ export default class App extends Component {
       nodes.push([current, graph[current].lon, graph[current].lat]);
 
       if (current == this.state.end) {
+        let runTime = Date.now() - timer;
+        this.setState({ nodesVisited: nodes.length, runTime });
         this.animateNodes(nodes, path);
-        console.log(`${nodes.length} nodes visted in ${Date.now() - timer} ms`);
+        console.log(nodes.length);
         break;
       }
 
@@ -306,8 +316,10 @@ export default class App extends Component {
       test.push(String(current));
 
       if (current == this.state.end) {
+        let runTime = Date.now() - timer;
+
         let cost = Array.from(cost_so_far)[cost_so_far.size - 1][1];
-        this.setState({ cost });
+        this.setState({ cost, nodesVisited: nodes.length, runTime });
         console.log(
           `%cAnalysed ${pathCounter} different paths, the best one costs ${cost}.`,
           "color: #fff; background-color:#b32400; border-radius: 5px; padding: 2px"
@@ -379,16 +391,14 @@ export default class App extends Component {
     });
     //Calculate total path distance
     for (let i = 0; i < backwards.length - 1; i++) {
-      distanceNodes.push(this.haversine(backwards[i], backwards[i + 1]));
+      distanceNodes.push(
+        Number(this.haversine(backwards[i], backwards[i + 1]))
+      );
     }
-    let distance = distanceNodes.reduce((a, b) => a + b, 0);
-    console.log(
-      `%cPath length: ${backwards.length} nodes
-Distance: ${distance.toFixed(4)} km or ${(distance / 1.60934).toFixed(4)} miles.
-Average speed: ${(this.state.cost / backwards.length).toFixed(2)}mph.`,
-      "color: #fff; background-color:#ff6600; border-radius: 5px; padding: 2px"
-    );
-    this.setState({ distance });
+    let distance = distanceNodes.reduce((a, b) => a + b, 0).toFixed(2);
+    let speed = (this.state.cost / backwards.length).toFixed(2);
+
+    this.setState({ distance, pathLength: backwards.length, speed });
     this.animatePath();
   };
 
@@ -485,7 +495,7 @@ Average speed: ${(this.state.cost / backwards.length).toFixed(2)}mph.`,
           gbf={this.gbf}
           astar={this.astar}
           setInitialView={this.setInitialView}
-          data={this.state.nodesToDisplay.length}
+          data={data.length}
           onStyleChange={this.onStyleChange}
           style={this.state.style}
           start={this.state.start}
@@ -543,7 +553,15 @@ Average speed: ${(this.state.cost / backwards.length).toFixed(2)}mph.`,
             />
           </div>
         </DeckGL>
-        <ListGroup />
+        <ListGroup
+          ref="child"
+          pathLength={this.state.pathLength}
+          distance={this.state.distance}
+          cost={this.state.cost}
+          speed={this.state.speed}
+          nodesVisited={this.state.nodesVisited}
+          runTime={this.state.runTime}
+        />
       </div>
     );
   }

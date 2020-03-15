@@ -115,8 +115,8 @@ class navbar extends Component {
             >
               <MDBContainer>
                 {/* <MDBNavbarBrand href="/">
-                <strong>Pathfinding</strong>
-              </MDBNavbarBrand> */}
+                  <strong>Pathfinding visualiser</strong>
+                </MDBNavbarBrand> */}
                 {!this.state.isWideEnough && (
                   <MDBNavbarToggler onClick={this.onClick} />
                 )}
@@ -124,36 +124,36 @@ class navbar extends Component {
                   <MDBNavbarNav centre>
                     <Select
                       options={algorithms}
-                      className="col-2 "
+                      className="col-sm-2 sm"
                       placeholder={this.props.start}
                       size="sm"
                     />
 
                     <Select
                       options={algorithms}
-                      className="col-2  "
+                      className="col-sm-2 sm"
                       placeholder={this.props.end}
                     />
 
                     <Select
                       options={algorithms}
-                      className="col-2 "
+                      className="col-sm-2 sm"
                       onChange={e => this.handleAlgo(e)}
                       placeholder={this.state.algorithm}
                     />
                     <Button
+                      size="sm"
                       onClick={() => this.handleStart()} //()=> so that it doesn't get called as soon as mounted
                       variant="primary"
                       className="mr-sm-1 font-weight-bold"
-                      size="md"
                     >
                       START
                     </Button>
                     <Button
+                      size="sm"
                       onClick={() => this.props.setInitialView()}
                       variant="danger"
                       className="mr-sm-1"
-                      size="md"
                     >
                       CLEAR
                     </Button>
@@ -164,7 +164,7 @@ class navbar extends Component {
 
                     <Badge variant="dark">
                       <h6>
-                        Nodes visited:{" "}
+                        Nodes count:{" "}
                         <Badge pill variant="light">
                           {this.props.data}
                         </Badge>

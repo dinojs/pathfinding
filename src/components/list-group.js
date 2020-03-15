@@ -13,36 +13,39 @@ export class ListGroup extends Component {
         <MDBListGroup
           style={{
             width: 180,
-            height: 100,
             fontSize: "11px",
             position: "absolute",
-            top: "110px",
+            top: "102px",
             right: "5px",
             lineHeight: 0.5
           }}
         >
-          <MDBListGroupItem className="d-flex justify-content-between align-items-center">
-            Nodes visted in x ms
+          <MDBListGroupItem
+            color="secondary"
+            className="d-flex   justify-content-between  align-items-center p-1 "
+          >
+            Visited{" "}
             <MDBBadge color="primary" pill>
-              14
-            </MDBBadge>
+              {this.props.nodesVisited}
+            </MDBBadge>{" "}
+            nodes in <MDBBadge color="danger">{this.props.runTime}ms</MDBBadge>
           </MDBListGroupItem>
-          <MDBListGroupItem className="d-flex justify-content-between align-items-center">
+          <MDBListGroupItem className="d-flex justify-content-between align-items-center p-1">
             Path length:
             <MDBBadge color="primary" pill>
-              2
+              {this.props.pathLength}
             </MDBBadge>
           </MDBListGroupItem>
-          <MDBListGroupItem className="d-flex justify-content-between align-items-center">
-            Distance (Km):
+          <MDBListGroupItem className="d-flex justify-content-between align-items-center p-1">
+            Distance:
             <MDBBadge color="primary" pill>
-              1
+              {this.props.distance} Km
             </MDBBadge>
           </MDBListGroupItem>
-          <MDBListGroupItem className="d-flex justify-content-between align-items-center">
-            Average speed (Km/h):
+          <MDBListGroupItem className="d-flex justify-content-between align-items-center p-1">
+            Average speed:
             <MDBBadge color="primary" pill>
-              1
+              {this.props.speed} Km/h
             </MDBBadge>
           </MDBListGroupItem>
         </MDBListGroup>

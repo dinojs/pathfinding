@@ -89,7 +89,7 @@ export function renderLayers(props) {
       new ScatterplotLayer({
         id: "scatterplotVisiting",
         getPosition: d => [d[1], d[2]],
-        getFillColor: [255, 51, 51],
+        getFillColor: [253, 128, 93],
         getRadius: 7.5,
         opacity: 1, //Put 0 for invisable
         radiusMinPixels: 0.25,

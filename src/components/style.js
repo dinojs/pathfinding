@@ -14,13 +14,13 @@ export const layerControl = {
   boxShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
   fontFamily:
     'ff-clan-web-pro, "Helvetica Neue", Helvetica, sans-serif !important',
-  fontSize: "12px",
+  fontSize: "11px",
   lineHeight: 1.833,
   width: 180,
   position: "absolute",
   top: "5px",
   right: "5px",
-  padding: "10px",
+  padding: "5px",
   zIndex: 100,
   background: "white"
 };
