@@ -1,23 +1,23 @@
 {
   "files": {
-    "main.js": "/pathfinding-master/static/js/main.00c959ab.chunk.js",
-    "main.js.map": "/pathfinding-master/static/js/main.00c959ab.chunk.js.map",
-    "runtime-main.js": "/pathfinding-master/static/js/runtime-main.598d0217.js",
-    "runtime-main.js.map": "/pathfinding-master/static/js/runtime-main.598d0217.js.map",
-    "static/css/2.44bbfd7b.chunk.css": "/pathfinding-master/static/css/2.44bbfd7b.chunk.css",
-    "static/js/2.bdc26aef.chunk.js": "/pathfinding-master/static/js/2.bdc26aef.chunk.js",
-    "static/js/2.bdc26aef.chunk.js.map": "/pathfinding-master/static/js/2.bdc26aef.chunk.js.map",
-    "index.html": "/pathfinding-master/index.html",
-    "precache-manifest.3e3c21b06c703f2d44bf2a553ba6cd2f.js": "/pathfinding-master/precache-manifest.3e3c21b06c703f2d44bf2a553ba6cd2f.js",
-    "service-worker.js": "/pathfinding-master/service-worker.js",
-    "static/css/2.44bbfd7b.chunk.css.map": "/pathfinding-master/static/css/2.44bbfd7b.chunk.css.map",
-    "static/js/2.bdc26aef.chunk.js.LICENSE": "/pathfinding-master/static/js/2.bdc26aef.chunk.js.LICENSE",
-    "static/media/all.min.css": "/pathfinding-master/static/media/fa-solid-900.cdfec5cf.woff"
+    "main.js": "/pathfinding/static/js/main.88a39dbb.chunk.js",
+    "main.js.map": "/pathfinding/static/js/main.88a39dbb.chunk.js.map",
+    "runtime-main.js": "/pathfinding/static/js/runtime-main.9bf0515e.js",
+    "runtime-main.js.map": "/pathfinding/static/js/runtime-main.9bf0515e.js.map",
+    "static/css/2.afab7300.chunk.css": "/pathfinding/static/css/2.afab7300.chunk.css",
+    "static/js/2.b01e0bf4.chunk.js": "/pathfinding/static/js/2.b01e0bf4.chunk.js",
+    "static/js/2.b01e0bf4.chunk.js.map": "/pathfinding/static/js/2.b01e0bf4.chunk.js.map",
+    "index.html": "/pathfinding/index.html",
+    "precache-manifest.7e667cca49c83939e425a538f829c6ba.js": "/pathfinding/precache-manifest.7e667cca49c83939e425a538f829c6ba.js",
+    "service-worker.js": "/pathfinding/service-worker.js",
+    "static/css/2.afab7300.chunk.css.map": "/pathfinding/static/css/2.afab7300.chunk.css.map",
+    "static/js/2.b01e0bf4.chunk.js.LICENSE": "/pathfinding/static/js/2.b01e0bf4.chunk.js.LICENSE",
+    "static/media/all.min.css": "/pathfinding/static/media/fa-solid-900.cdfec5cf.woff"
   },
   "entrypoints": [
-    "static/js/runtime-main.598d0217.js",
-    "static/css/2.44bbfd7b.chunk.css",
-    "static/js/2.bdc26aef.chunk.js",
-    "static/js/main.00c959ab.chunk.js"
+    "static/js/runtime-main.9bf0515e.js",
+    "static/css/2.afab7300.chunk.css",
+    "static/js/2.b01e0bf4.chunk.js",
+    "static/js/main.88a39dbb.chunk.js"
   ]
 }
