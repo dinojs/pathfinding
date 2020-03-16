@@ -41,10 +41,10 @@ def add_nodes(nodes):
             create_data_info(current_node)
         if pre_node and pre_node not in data[current_node]['adj'] and str(current_node) != str(pre_node) and pre_node != next_node:
             data[current_node]['adj'].append(pre_node)
-            data[current_node]['w'].append(randrange(5, 45))
+            data[current_node]['w'].append(randrange(9, 75))
         if next_node and next_node not in data[current_node]['adj'] and str(current_node) != str(next_node) and next_node != pre_node:
             data[current_node]['adj'].append(next_node)
-            data[current_node]['w'].append(randrange(5, 45))
+            data[current_node]['w'].append(randrange(9, 75))
 
 
 def create_nodes_info(node):

@@ -124,20 +124,20 @@ class navbar extends Component {
                   <MDBNavbarNav centre>
                     <Select
                       options={algorithms}
-                      className="col-sm-2 sm"
+                      className="col-sm-3 sm"
                       placeholder={this.props.start}
                       size="sm"
                     />
 
                     <Select
                       options={algorithms}
-                      className="col-sm-2 sm"
+                      className="col-sm-3 sm"
                       placeholder={this.props.end}
                     />
 
                     <Select
                       options={algorithms}
-                      className="col-sm-2 sm"
+                      className="col-sm-3 sm"
                       onChange={e => this.handleAlgo(e)}
                       placeholder={this.state.algorithm}
                     />
@@ -145,7 +145,7 @@ class navbar extends Component {
                       size="sm"
                       onClick={() => this.handleStart()} //()=> so that it doesn't get called as soon as mounted
                       variant="primary"
-                      className="mr-sm-1 font-weight-bold"
+                      className="mr-sm-2 font-weight-bold"
                     >
                       START
                     </Button>
@@ -153,7 +153,7 @@ class navbar extends Component {
                       size="sm"
                       onClick={() => this.props.setInitialView()}
                       variant="danger"
-                      className="mr-sm-1"
+                      className="mr-sm-2"
                     >
                       CLEAR
                     </Button>
@@ -161,15 +161,6 @@ class navbar extends Component {
                       onStyleChange={this.props.onStyleChange}
                       currentStyle={this.props.style}
                     />
-
-                    <Badge variant="dark">
-                      <h6>
-                        Nodes count:{" "}
-                        <Badge pill variant="light">
-                          {this.props.data}
-                        </Badge>
-                      </h6>
-                    </Badge>
                   </MDBNavbarNav>
                 </MDBCollapse>
               </MDBContainer>

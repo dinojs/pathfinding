@@ -13,17 +13,21 @@ export class ListGroup extends Component {
         <MDBListGroup
           style={{
             width: 180,
-            fontSize: "11px",
+            fontSize: "12px",
             position: "absolute",
-            top: "102px",
+            top: "5px",
             right: "5px",
             lineHeight: 0.5
           }}
         >
           <MDBListGroupItem
+            className="d-flex justify-content-between align-items-center p-1"
             color="secondary"
-            className="d-flex   justify-content-between  align-items-center p-1 "
           >
+            Live nodes count:
+            <span> {this.props.data}</span>
+          </MDBListGroupItem>
+          <MDBListGroupItem className="d-flex   justify-content-between  align-items-center p-1 ">
             Visited{" "}
             <MDBBadge color="primary" pill>
               {this.props.nodesVisited}

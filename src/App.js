@@ -6,14 +6,11 @@ import {
 } from "react-map-gl";
 import DeckGL from "deck.gl";
 import { renderLayers } from "./components/deckgl-layers";
-//import { Algorithms } from "./components/algorithms";
 import Navbar from "./components/navbar";
 import { ListGroup } from "./components/list-group";
 import { LayerControls, SCATTERPLOT_CONTROLS } from "./components/controls";
 import { tooltipStyle } from "./components/style";
-//import text from ".data/nodes.json"
 import FlatQueue from "flatqueue";
-
 export default class App extends Component {
   constructor(props) {
     super(props);
@@ -92,7 +89,7 @@ export default class App extends Component {
   setInitialView = () => {
     let nodesToDisplay = [];
     const graph = this.state.graph;
-    //const string = JSON.stringify(data[0]);
+
     for (let i in graph) {
       nodesToDisplay.push([i, graph[i].lon, graph[i].lat]);
     }
@@ -100,8 +97,12 @@ export default class App extends Component {
       nodesToDisplay,
       pathToDisplay: null, //Reset path
       tripToDisplay: null, //Reset trip animation
-      visiting: null //Reset Start and End
+      visiting: null, //Reset Frontier
+      startEnd: null, //Reset start/end
+      start: "Start", //So that they show as placeholder
+      end: "Destination"
     });
+    clearInterval(this.state.interval); //Stop animation
   };
   //////////////////////////////////
   bfs = () => {
@@ -247,6 +248,7 @@ export default class App extends Component {
   heuristic = (a, b) => {
     //Manhattan distance
     const graph = this.state.graph;
+
     return (
       Math.abs(graph[a].lon - graph[b].lon) +
       Math.abs(graph[a].lat - graph[b].lat)
@@ -303,7 +305,6 @@ export default class App extends Component {
     let path = new Map();
     let cost_so_far = new Map();
     cost_so_far.set(this.state.start, 0);
-    let test = [];
 
     let current, adjNodes, priority;
     let nodes = [];
@@ -313,7 +314,6 @@ export default class App extends Component {
       adjNodes = graph[current].adj;
 
       nodes.push([current, graph[current].lon, graph[current].lat]);
-      test.push(String(current));
 
       if (current == this.state.end) {
         let runTime = Date.now() - timer;
@@ -345,8 +345,6 @@ export default class App extends Component {
       }
     }
     if (!frontier.length) {
-      console.log(test);
-
       this.animateNodes(nodes);
       console.log(`${nodes.length} nodes visted in ${Date.now() - timer} ms`);
       console.log(
@@ -424,9 +422,16 @@ export default class App extends Component {
   };
 
   animateNodes(nodes, path = null, i = 1) {
+    // let connected = []; //Retrive connected graph
+    // nodes.forEach(e => connected.push(String(e[0])));
+    // console.log(connected);
     let visiting = [];
-    this.setState({ nodesToDisplay: nodes[0] }); //Avoid page refresh
-    let interval = setInterval(() => {
+    this.setState({
+      nodesToDisplay: nodes[0],
+      startEnd: [nodes[0], nodes[nodes.length - 1]]
+    }); //Avoid page refresh
+
+    this.state.interval = setInterval(() => {
       this.setState({
         nodesToDisplay: this.state.nodesToDisplay.concat([nodes[i]]),
         visiting: this.state.nodesToDisplay.slice(-8)
@@ -437,8 +442,8 @@ export default class App extends Component {
       }
       i++;
       if (i === nodes.length) {
-        clearInterval(interval);
-        this.setState({ visiting: [nodes[0], nodes[nodes.length - 1]] });
+        clearInterval(this.state.interval);
+        this.setState({ visiting: null }); //Reset current visiting animation
         if (nodes[nodes.length - 1][0] == this.state.end) {
           //If end node found
 
@@ -487,6 +492,12 @@ export default class App extends Component {
 
     return (
       <div>
+        <LayerControls
+          settings={this.state.settings}
+          propTypes={SCATTERPLOT_CONTROLS}
+          onChange={settings => this._updateLayerSettings(settings)}
+        />
+
         <Navbar
           ref="child"
           bfs={this.bfs}
@@ -495,17 +506,10 @@ export default class App extends Component {
           gbf={this.gbf}
           astar={this.astar}
           setInitialView={this.setInitialView}
-          data={data.length}
           onStyleChange={this.onStyleChange}
           style={this.state.style}
           start={this.state.start}
           end={this.state.end}
-        />
-
-        <LayerControls
-          settings={this.state.settings}
-          propTypes={SCATTERPLOT_CONTROLS}
-          onChange={settings => this._updateLayerSettings(settings)}
         />
 
         {hover.hoveredObject && (
@@ -522,7 +526,8 @@ export default class App extends Component {
           layers={renderLayers({
             trailLength: this.state.trailLength,
             visiting: this.state.visiting,
-            data: [...data],
+            startEnd: this.state.startEnd,
+            data,
             path: path,
             trip: this.state.tripToDisplay,
             time: this.state.time,
@@ -555,6 +560,7 @@ export default class App extends Component {
         </DeckGL>
         <ListGroup
           ref="child"
+          data={data.length}
           pathLength={this.state.pathLength}
           distance={this.state.distance}
           cost={this.state.cost}

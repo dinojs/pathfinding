@@ -56,6 +56,7 @@ export function renderLayers(props) {
   const {
     data,
     visiting,
+    startEnd,
     path,
     trip,
     time,
@@ -74,7 +75,7 @@ export function renderLayers(props) {
         //Format array [x,y,z]
         getPosition: d => [d[1], d[2]],
         getFillColor: [0, 128, 255],
-        getRadius: 7,
+        getRadius: 8.5,
         opacity: 1, //Put 0 for invisable
         pickable: true,
         radiusMinPixels: 0.25,
@@ -85,17 +86,18 @@ export function renderLayers(props) {
         onClick,
         ...settings
       }),
-    settings.showScatterplot &&
-      new ScatterplotLayer({
-        id: "scatterplotVisiting",
-        getPosition: d => [d[1], d[2]],
-        getFillColor: [253, 128, 93],
-        getRadius: 7.5,
-        opacity: 1, //Put 0 for invisable
-        radiusMinPixels: 0.25,
-        radiusMaxPixels: 10,
-        data: visiting
-      }),
+
+    new ScatterplotLayer({
+      id: "scatterplotVisiting",
+      getPosition: d => [d[1], d[2]],
+      getFillColor: [253, 128, 93],
+      getRadius: 9,
+      opacity: 1, //Put 0 for invisable
+      radiusMinPixels: 0.25,
+      radiusMaxPixels: 10,
+      data: visiting,
+      ...settings
+    }),
 
     new PolygonLayer({
       id: "ground",
@@ -126,6 +128,17 @@ export function renderLayers(props) {
       getWidth: d => 2
     }),
 
+    new ScatterplotLayer({
+      id: "scatterplotStartEnd",
+      getPosition: d => [d[1], d[2]],
+      getFillColor: [255, 69, 0],
+      getRadius: 20,
+      opacity: 1, //Put 0 for invisable
+      radiusMinPixels: 0.25,
+      radiusMaxPixels: 10,
+      data: startEnd,
+      ...settings
+    }),
     new TripsLayer({
       id: "trips",
       data: trip,
