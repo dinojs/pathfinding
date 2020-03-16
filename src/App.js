@@ -450,7 +450,7 @@ export default class App extends Component {
           this.recustructPath(path); //Set visited nodes sequence
         }
       }
-    }, 0.00001);
+    }, 0.001);
   }
 
   ////////////////////////////////////////
