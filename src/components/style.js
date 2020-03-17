@@ -40,7 +40,11 @@ export const counterText = {
   opacity: 1,
   fontSize: "0.6rem",
   position: "absolute",
-  bottom: "20px",
+  bottom: "24px",
   left: "45px",
   zIndex: 9998
+};
+
+export const select = {
+  width: 180
 };

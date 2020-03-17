@@ -1,0 +1,34 @@
+[
+  {
+    "value": "bfs",
+    "label": "Bread-First Search",
+    "description": "UNWEIGHTED and GUARANTEES the shortest path!",
+    "URL": "https://en.wikipedia.org/wiki/Breadth-first_search"
+  },
+  {
+    "value": "dfs",
+    "label": "Depth-First Search",
+    "description": "UNWEIGHTED and DOESN'T GUARANTEE the shortest path!",
+    "URL": "https://en.wikipedia.org/wiki/Depth-first_search"
+  },
+  {
+    "value": "dks",
+    "label": "Dijkstra’s",
+    "description": "WEIGHTED and GUARANTEES the shortest path!",
+    "URL": "https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm"
+  },
+  {
+    "value": "gbf",
+    "label": "Greedy Best First Search",
+    "description":
+      "Can be WEIGHTED and DOESN'T GUARANTEE the shortest path. A faster, more heuristic-heavy version of A*",
+    "URL": "https://en.wikipedia.org/wiki/Best-first_search"
+  },
+  {
+    "value": "astar",
+    "label": "A* Algorithm",
+    "description":
+      "WEIGHTED and GUARANTEES the shortest path. Probably, the best pathfinding algorithm; uses heuristics to guarantee the shortest path much faster than Dijkstra's Algorithm",
+    "URL": "https://en.wikipedia.org/wiki/A*_search_algorithm"
+  }
+]

@@ -86,17 +86,18 @@ export function renderLayers(props) {
         ...settings
       }),
 
-    new ScatterplotLayer({
-      id: "scatterplotVisiting",
-      getPosition: d => [d[1], d[2]],
-      getFillColor: [253, 128, 93],
-      getRadius: 9,
-      opacity: 1, //Put 0 for invisable
-      radiusMinPixels: 0.25,
-      radiusMaxPixels: 10,
-      data: visiting,
-      ...settings
-    }),
+    settings.showScatterplot &&
+      new ScatterplotLayer({
+        id: "scatterplotVisiting",
+        getPosition: d => [d[1], d[2]],
+        getFillColor: [253, 128, 93],
+        getRadius: 9,
+        opacity: 1, //Put 0 for invisable
+        radiusMinPixels: 0.25,
+        radiusMaxPixels: 10,
+        data: visiting,
+        ...settings
+      }),
 
     new PolygonLayer({
       id: "ground",
@@ -131,7 +132,7 @@ export function renderLayers(props) {
       id: "scatterplotStartEnd",
       getPosition: d => [d[1], d[2]],
       getFillColor: [255, 69, 0],
-      getRadius: 20,
+      getRadius: 30,
       opacity: 1, //Put 0 for invisable
       radiusMinPixels: 0.25,
       radiusMaxPixels: 10,

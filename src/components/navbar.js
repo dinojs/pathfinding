@@ -6,6 +6,9 @@ import { Notification } from "./notification";
 import Select from "react-select";
 import firebase from "./firebase";
 import Counter from "./counter.jsx";
+import locations from "../data/locations.json"; //Dropdown data
+import algoInfo from "../data/algoInfo.json"; //Algorithms description
+
 import {
   MDBNavbar,
   MDBNavbarNav,
@@ -15,41 +18,6 @@ import {
 } from "mdbreact";
 import { BrowserRouter as Router } from "react-router-dom";
 
-const algorithms = [
-  {
-    value: "bfs",
-    label: "Bread-First Search",
-    description: "UNWEIGHTED and GUARANTEES the shortest path!",
-    URL: "https://en.wikipedia.org/wiki/Breadth-first_search"
-  },
-  {
-    value: "dfs",
-    label: "Depth-First Search",
-    description: "UNWEIGHTED and DOESN'T GUARANTEE the shortest path!",
-    URL: "https://en.wikipedia.org/wiki/Depth-first_search"
-  },
-  {
-    value: "dks",
-    label: "Dijkstra’s",
-    description: "WEIGHTED and GUARANTEES the shortest path!",
-    URL: "https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm"
-  },
-  {
-    value: "gbf",
-    label: "Greedy Best First Search",
-    description:
-      "Can be WEIGHTED and DOESN'T GUARANTEE the shortest path. A faster, more heuristic-heavy version of A*",
-    URL: "https://en.wikipedia.org/wiki/Best-first_search"
-  },
-  {
-    value: "astar",
-    label: "A* Algorithm",
-    description:
-      "WEIGHTED and GUARANTEES the shortest path. Probably, the best pathfinding algorithm; uses heuristics to guarantee the shortest path much faster than Dijkstra's Algorithm",
-    URL: "https://en.wikipedia.org/wiki/A*_search_algorithm"
-  }
-];
-
 class navbar extends Component {
   constructor(props) {
     super(props);
@@ -58,7 +26,10 @@ class navbar extends Component {
       label: "How does it work?",
       description:
         "Select a STARTING/DESTINATION point by clicking on the nodes ⮕ Select an ALGORITHM ⮕ Click START. Keep me open if you want to learn more about algorithms while using the site",
-      collapse: false
+      collapse: false,
+      nodes: null,
+      start: "Start",
+      end: "Start"
     };
     this.onClick = this.onClick.bind(this);
   }
@@ -102,6 +73,7 @@ class navbar extends Component {
   componentDidMount() {
     this.readCounter();
   }
+
   handleStart() {
     switch (this.state.algorithm) {
       case "bfs":
@@ -153,21 +125,24 @@ class navbar extends Component {
                 <MDBCollapse isOpen={this.state.collapse} navbar>
                   <MDBNavbarNav centre>
                     <Select
-                      options={algorithms}
-                      className="col-sm-3 sm"
+                      options={locations}
+                      value={this.props.start}
+                      className="col-sm-3"
+                      onChange={e => this.props.handleStart(Number(e.value))}
                       placeholder={this.props.start}
-                      size="sm"
                     />
 
                     <Select
-                      options={algorithms}
-                      className="col-sm-3 sm"
+                      options={locations}
+                      value={this.props.end}
+                      className="col-sm-3"
+                      onChange={e => this.props.handleEnd(Number(e.value))}
                       placeholder={this.props.end}
                     />
 
                     <Select
-                      options={algorithms}
-                      className="col-sm-3 sm"
+                      options={algoInfo}
+                      className="col-sm-3"
                       onChange={e => this.handleAlgo(e)}
                       placeholder={this.state.algorithm}
                     />

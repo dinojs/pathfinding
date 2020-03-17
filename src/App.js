@@ -36,8 +36,6 @@ export default class App extends Component {
       pathLength: 0,
       trailLength: 200, //Can't be null
       click: { clickedOject: null },
-      start: "Start", //So that they show as placeholder
-      end: "Destination",
       nodesToDisplay: [],
       nodesVisited: 0, //Frontier length
       time: 0,
@@ -110,6 +108,18 @@ export default class App extends Component {
       runTime: 0
     });
     clearInterval(this.state.interval); //Stop animation
+  };
+
+  handleStart = e => {
+    if (this.state.end !== e) {
+      this.setState({ start: e });
+    }
+  };
+
+  handleEnd = e => {
+    if (this.state.start !== e) {
+      this.setState({ end: e });
+    }
   };
   //////////////////////////////////
   bfs = () => {
@@ -466,11 +476,7 @@ export default class App extends Component {
     this.setState({ hover: { x, y, hoveredObject: object, label } });
   }
   _onClick({ object }) {
-    if (this.state.start && this.state.end) {
-      this.setState({ start: null, end: null });
-    }
-
-    this.state.start
+    this.state.start !== "Start"
       ? this.setState({ end: parseInt(object[0]) })
       : this.setState({ start: parseInt(object[0]) });
 
@@ -516,6 +522,8 @@ export default class App extends Component {
           style={this.state.style}
           start={this.state.start}
           end={this.state.end}
+          handleStart={this.handleStart.bind(this)}
+          handleEnd={this.handleEnd.bind(this)}
         />
 
         {hover.hoveredObject && (
