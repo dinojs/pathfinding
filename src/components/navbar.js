@@ -1,13 +1,13 @@
 import React, { Component } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Button, Badge } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import { MapStylePicker } from "./controls";
 import { Notification } from "./notification";
 import Select from "react-select";
-//import Algorithms from "./algorithms";
+import firebase from "./firebase";
+import Counter from "./counter.jsx";
 import {
   MDBNavbar,
-  MDBNavbarBrand,
   MDBNavbarNav,
   MDBNavbarToggler,
   MDBCollapse,
@@ -77,21 +77,51 @@ class navbar extends Component {
     });
   }
 
+  incrementCounter() {
+    //Increment counter
+    const db = firebase.firestore();
+    const increment = firebase.firestore.FieldValue.increment(1);
+
+    const counterRef = db.collection("counter").doc("paths");
+    counterRef.update({ counter: increment });
+  }
+
+  readCounter() {
+    //Read counter on load time
+    const db = firebase.firestore();
+    let counter;
+    db.collection("counter")
+      .get()
+      .then(snapshot => {
+        snapshot.docs.forEach(doc => {
+          counter = doc.data().counter;
+        });
+        this.setState({ counter });
+      });
+  }
+  componentDidMount() {
+    this.readCounter();
+  }
   handleStart() {
     switch (this.state.algorithm) {
       case "bfs":
         this.props.bfs();
+        this.incrementCounter(); //Total paths found all time
         break;
       case "dfs":
         this.props.dfs();
+        this.incrementCounter();
         break;
       case "dks":
         this.props.dks();
+        this.incrementCounter();
         break;
       case "gbf":
         this.props.gbf();
+        this.incrementCounter();
         break;
       case "astar":
+        this.incrementCounter();
         this.props.astar();
         break;
       default:
@@ -167,12 +197,14 @@ class navbar extends Component {
             </MDBNavbar>
           </Router>
         </header>
+
         <Notification
           algorithm={this.state.algorithm}
           label={this.state.label}
           description={this.state.description}
           URL={this.state.URL}
         />
+        <Counter counter={this.state.counter} />
       </div>
     );
   }

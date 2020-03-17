@@ -6,8 +6,7 @@ import { AmbientLight, PointLight, LightingEffect } from "@deck.gl/core";
 const URL =
   "https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/trips/buildings.json";
 
-const trips =
-  "https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/trips/trips-v7.json";
+//const trips ="https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/trips/trips-v7.json";
 
 const START_COLOR = [0, 128, 255];
 const END_COLOR = [255, 0, 128];

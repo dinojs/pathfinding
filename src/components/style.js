@@ -24,3 +24,23 @@ export const layerControl = {
   zIndex: 100,
   background: "white"
 };
+export const countercss = {
+  color: "#fff",
+  opacity: 1,
+  fontWeight: 500,
+  fontSize: "1rem",
+  position: "absolute",
+  bottom: "30px",
+  left: "45px",
+  zIndex: 9998
+};
+
+export const counterText = {
+  color: "#F5F5F5",
+  opacity: 1,
+  fontSize: "0.6rem",
+  position: "absolute",
+  bottom: "20px",
+  left: "45px",
+  zIndex: 9998
+};

@@ -1,5 +1,5 @@
-import React, { Component, useState } from "react";
-import { MDBContainer, MDBNotification } from "mdbreact";
+import React, { Component } from "react";
+import { MDBNotification } from "mdbreact";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
 export class Notification extends Component {

@@ -11,6 +11,10 @@ import { ListGroup } from "./components/list-group";
 import { LayerControls, SCATTERPLOT_CONTROLS } from "./components/controls";
 import { tooltipStyle } from "./components/style";
 import FlatQueue from "flatqueue";
+import ReactGA from "react-ga"; //Website traffic info
+ReactGA.initialize("UA-160781302-1");
+ReactGA.pageview(window.location.pathname + window.location.search);
+
 export default class App extends Component {
   constructor(props) {
     super(props);
@@ -79,7 +83,6 @@ export default class App extends Component {
   processData = () => {
     const data = require("./data/nodes.json");
     const graph = data[0];
-
     this.setState(
       { graph },
       this.setInitialView //Works as await function
@@ -100,7 +103,11 @@ export default class App extends Component {
       visiting: null, //Reset Frontier
       startEnd: null, //Reset start/end
       start: "Start", //So that they show as placeholder
-      end: "Destination"
+      end: "Destination",
+      cost: 0,
+      speed: 0,
+      pathLength: 0,
+      runTime: 0
     });
     clearInterval(this.state.interval); //Stop animation
   };
@@ -127,7 +134,7 @@ export default class App extends Component {
 
       nodes.push([current, graph[current].lon, graph[current].lat]);
 
-      if (current == this.state.end) {
+      if (current === this.state.end) {
         let runTime = Date.now() - timer;
         this.setState({ nodesVisited: nodes.length, runTime });
         this.animateNodes(nodes, path);
@@ -166,7 +173,7 @@ export default class App extends Component {
       //Display node
       nodes.push([current, graph[current].lon, graph[current].lat]);
 
-      if (current == this.state.end) {
+      if (current === this.state.end) {
         let runTime = Date.now() - timer;
         this.setState({ nodesVisited: nodes.length, runTime });
         this.animateNodes(nodes, path);
@@ -209,7 +216,7 @@ export default class App extends Component {
 
       nodes.push([current, graph[current].lon, graph[current].lat]);
 
-      if (current == this.state.end) {
+      if (current === this.state.end) {
         let runTime = Date.now() - timer;
         let cost = Array.from(cost_so_far)[cost_so_far.size - 1][1];
         this.setState({ cost, nodesVisited: nodes.length, runTime });
@@ -272,11 +279,10 @@ export default class App extends Component {
 
       nodes.push([current, graph[current].lon, graph[current].lat]);
 
-      if (current == this.state.end) {
+      if (current === this.state.end) {
         let runTime = Date.now() - timer;
         this.setState({ nodesVisited: nodes.length, runTime });
         this.animateNodes(nodes, path);
-        console.log(nodes.length);
         break;
       }
 
@@ -315,7 +321,7 @@ export default class App extends Component {
 
       nodes.push([current, graph[current].lon, graph[current].lat]);
 
-      if (current == this.state.end) {
+      if (current === this.state.end) {
         let runTime = Date.now() - timer;
 
         let cost = Array.from(cost_so_far)[cost_so_far.size - 1][1];
@@ -434,23 +440,23 @@ export default class App extends Component {
     this.state.interval = setInterval(() => {
       this.setState({
         nodesToDisplay: this.state.nodesToDisplay.concat([nodes[i]]),
-        visiting: this.state.nodesToDisplay.slice(-8)
+        visiting: this.state.nodesToDisplay.slice(-25)
       });
 
-      if ((visiting.length = 8)) {
+      if ((visiting.length = 25)) {
         visiting.shift();
       }
       i++;
       if (i === nodes.length) {
         clearInterval(this.state.interval);
         this.setState({ visiting: null }); //Reset current visiting animation
-        if (nodes[nodes.length - 1][0] == this.state.end) {
+        if (nodes[nodes.length - 1][0] === this.state.end) {
           //If end node found
 
           this.recustructPath(path); //Set visited nodes sequence
         }
       }
-    }, 0.001);
+    }, 10);
   }
 
   ////////////////////////////////////////
