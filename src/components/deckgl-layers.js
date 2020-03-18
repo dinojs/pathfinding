@@ -5,11 +5,7 @@ import { AmbientLight, PointLight, LightingEffect } from "@deck.gl/core";
 
 const URL =
   "https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/trips/buildings.json";
-
 //const trips ="https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/trips/trips-v7.json";
-
-const START_COLOR = [0, 128, 255];
-const END_COLOR = [255, 0, 128];
 
 const ambientLight = new AmbientLight({
   color: [255, 255, 255],
@@ -47,7 +43,7 @@ const landCover = [
   ]
 ];
 const ICON_MAPPING = {
-  marker: { x: 0, y: 0, width: 32, height: 32, mask: true }
+  marker: { x: 0, y: 0, width: 64, height: 64, anchorY: 64 }
 };
 
 export function renderLayers(props) {
@@ -55,7 +51,7 @@ export function renderLayers(props) {
   const {
     data,
     visiting,
-    startEnd,
+    markers,
     path,
     trip,
     time,
@@ -75,7 +71,7 @@ export function renderLayers(props) {
         getPosition: d => [d[1], d[2]],
         getFillColor: [0, 128, 255],
         getRadius: 8.5,
-        opacity: 1, //Put 0 for invisable
+        //opacity: 1, //Put 0 for invisable
         pickable: true,
         radiusMinPixels: 0.25,
         radiusMaxPixels: 10,
@@ -92,7 +88,7 @@ export function renderLayers(props) {
         getPosition: d => [d[1], d[2]],
         getFillColor: [253, 128, 93],
         getRadius: 9,
-        opacity: 1, //Put 0 for invisable
+        //opacity: 1, //Put 0 for invisable
         radiusMinPixels: 0.25,
         radiusMaxPixels: 10,
         data: visiting,
@@ -128,17 +124,6 @@ export function renderLayers(props) {
       getWidth: d => 2
     }),
 
-    new ScatterplotLayer({
-      id: "scatterplotStartEnd",
-      getPosition: d => [d[1], d[2]],
-      getFillColor: [255, 69, 0],
-      getRadius: 30,
-      opacity: 1, //Put 0 for invisable
-      radiusMinPixels: 0.25,
-      radiusMaxPixels: 10,
-      data: startEnd,
-      ...settings
-    }),
     new TripsLayer({
       id: "trips",
       data: trip,
@@ -152,22 +137,21 @@ export function renderLayers(props) {
       currentTime: time,
 
       shadowEnabled: false
+    }),
+    new IconLayer({
+      id: "icon-layer",
+      data: markers,
+      pickable: true,
+      // iconAtlas and iconMapping are required
+      // getIcon: return a string
+      iconAtlas:
+        "https://raw.githubusercontent.com/dinojs/counter-app/master/src/pin.png", //<div>Icons made by <a href="https://www.flaticon.com/authors/freepik"<div>
+      iconMapping: ICON_MAPPING,
+      getIcon: d => "marker",
+      sizeScale: 20,
+      getPosition: d => [d[0], d[1]],
+      getSize: d => 2,
+      sizeMinPixels: 6
     })
-
-    // new IconLayer({
-    //   id: "icon-layer",
-    //   data: [startXY, endXY],
-    //   pickable: true,
-    //   // iconAtlas and iconMapping are required
-    //   // getIcon: return a string
-    //   iconAtlas: "./pin.png",
-    //   iconMapping: ICON_MAPPING,
-    //   getIcon: d => "marker",
-
-    //   sizeScale: 15,
-    //   getPosition: d => [d[1], d[2]],
-    //   getSize: d => 24,
-    //   getColor: d => [255, 255, 255]
-    // })
   ];
 }

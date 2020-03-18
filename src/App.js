@@ -14,6 +14,7 @@ import FlatQueue from "flatqueue";
 import ReactGA from "react-ga"; //Website traffic info
 ReactGA.initialize("UA-160781302-1");
 ReactGA.pageview(window.location.pathname + window.location.search);
+const MAPBOX_TOKEN = process.env.REACT_APP_MapboxAccessToken; // eslint-disable-line
 
 export default class App extends Component {
   constructor(props) {
@@ -99,7 +100,8 @@ export default class App extends Component {
       pathToDisplay: null, //Reset path
       tripToDisplay: null, //Reset trip animation
       visiting: null, //Reset Frontier
-      startEnd: null, //Reset start/end
+      startMarker: [],
+      endMarker: [],
       start: "Start", //So that they show as placeholder
       end: "Destination",
       cost: 0,
@@ -110,17 +112,6 @@ export default class App extends Component {
     clearInterval(this.state.interval); //Stop animation
   };
 
-  handleStart = e => {
-    if (this.state.end !== e) {
-      this.setState({ start: e });
-    }
-  };
-
-  handleEnd = e => {
-    if (this.state.start !== e) {
-      this.setState({ end: e });
-    }
-  };
   //////////////////////////////////
   bfs = () => {
     const graph = this.state.graph;
@@ -443,8 +434,7 @@ export default class App extends Component {
     // console.log(connected);
     let visiting = [];
     this.setState({
-      nodesToDisplay: nodes[0],
-      startEnd: [nodes[0], nodes[nodes.length - 1]]
+      nodesToDisplay: nodes[0]
     }); //Avoid page refresh
 
     this.state.interval = setInterval(() => {
@@ -476,15 +466,53 @@ export default class App extends Component {
     this.setState({ hover: { x, y, hoveredObject: object, label } });
   }
   _onClick({ object }) {
-    this.state.start !== "Start"
-      ? this.setState({ end: parseInt(object[0]) })
-      : this.setState({ start: parseInt(object[0]) });
+    let node = parseInt(object[0]);
+    let marker = [];
+    if (this.state.start && this.state.end) {
+      //If both are alredy selected
+      this.setState({
+        start: null,
+        end: null,
+        startMarker: [],
+        endMarker: []
+      });
+    }
+
+    marker.push(this.state.graph[node].lon, this.state.graph[node].lat);
+
+    this.state.start
+      ? this.setState({ end: node, endMarker: marker })
+      : this.setState({ start: node, startMarker: marker });
 
     //Start and End can't be the same
+
     if (this.state.start === this.state.end) {
-      this.setState({ start: null, end: null });
+      this.setState({
+        start: null,
+        end: null,
+        startMarker: [],
+        endMarker: []
+      });
     }
   }
+
+  handleStart = e => {
+    let startMarker = [];
+    if (this.state.end !== e) {
+      this.setState({ start: e, startMarker: [] });
+      startMarker.push(this.state.graph[e].lon, this.state.graph[e].lat);
+      this.setState({ startMarker });
+    }
+  };
+
+  handleEnd = e => {
+    let endMarker = [];
+    if (this.state.start !== e) {
+      this.setState({ end: e, endMarker: [] });
+      endMarker.push(this.state.graph[e].lon, this.state.graph[e].lat);
+      this.setState({ endMarker });
+    }
+  };
 
   onStyleChange = style => {
     this.setState({ style });
@@ -540,9 +568,9 @@ export default class App extends Component {
           layers={renderLayers({
             trailLength: this.state.trailLength,
             visiting: this.state.visiting,
-            startEnd: this.state.startEnd,
+            markers: [this.state.startMarker, this.state.endMarker],
             data,
-            path: path,
+            path,
             trip: this.state.tripToDisplay,
             time: this.state.time,
             onHover: hover => this._onHover(hover),
@@ -556,10 +584,7 @@ export default class App extends Component {
           <StaticMap // minimum version of reat-map-g
             reuseMaps
             mapStyle={this.state.style}
-            mapboxApiAccessToken={
-              //   "pk.eyJ1IjoiZGlub2pzIiwiYSI6ImNrMXIybWIzZTAwdXozbnBrZzlnOWNidzkifQ.Zs9R8K81ZSvVVizvzAXmfg"
-              "pk.eyJ1IjoidWJlcmRhdGEiLCJhIjoiY2pudzRtaWloMDAzcTN2bzN1aXdxZHB5bSJ9.2bkj3IiRC8wj3jLThvDGdA"
-            }
+            mapboxApiAccessToken={MAPBOX_TOKEN}
           />
           <div className="mapboxgl-ctrl-bottom-left">
             <NavigationControl
