@@ -145,12 +145,12 @@ export function renderLayers(props) {
       // iconAtlas and iconMapping are required
       // getIcon: return a string
       iconAtlas:
-        "https://raw.githubusercontent.com/dinojs/counter-app/master/src/pin.png", //<div>Icons made by <a href="https://www.flaticon.com/authors/freepik"<div>
+        "https://raw.githubusercontent.com/dinojs/pathfinding/master/src/data/pin.png", //<div>Icons made by <a href="https://www.flaticon.com/authors/freepik"<div>
       iconMapping: ICON_MAPPING,
       getIcon: d => "marker",
-      sizeScale: 20,
+      sizeScale: 35,
       getPosition: d => [d[0], d[1]],
-      getSize: d => 2,
+      getSize: d => 1,
       sizeMinPixels: 6
     })
   ];

@@ -114,11 +114,9 @@ class navbar extends Component {
               fixed="top"
               scrolling
               transparent
+              style={{ marginleft: "200px", marginRight: "200px" }} //Avoid list-group collision
             >
               <MDBContainer>
-                {/* <MDBNavbarBrand href="/">
-                  <strong>Pathfinding visualiser</strong>
-                </MDBNavbarBrand> */}
                 {!this.state.isWideEnough && (
                   <MDBNavbarToggler onClick={this.onClick} />
                 )}
