@@ -111,8 +111,6 @@ class navbar extends Component {
               fixed="top"
               dark
               expand="md"
-              fixed="top"
-              scrolling
               transparent
               style={{ marginleft: "200px", marginRight: "200px" }} //Avoid list-group collision
             >
@@ -121,7 +119,10 @@ class navbar extends Component {
                   <MDBNavbarToggler onClick={this.onClick} />
                 )}
                 <MDBCollapse isOpen={this.state.collapse} navbar>
-                  <MDBNavbarNav centre>
+                  <MDBNavbarNav
+                    // style={{ marginleft: "200px", marginRight: "200px" }}
+                    cetre
+                  >
                     <Select
                       options={locations}
                       value={this.props.start}

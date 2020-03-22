@@ -8,6 +8,7 @@ import { Provider } from "react-redux"; //Component that will wrap the root comp
 import rootReducer from "./reducers/rootReducer";
 
 require("dotenv").config();
+window.scrollTo(0, 1);
 //const store = createStore(rootReducer);
 
 ReactDOM.render(<App />, document.getElementById("root"));

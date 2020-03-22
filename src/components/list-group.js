@@ -17,8 +17,7 @@ export class ListGroup extends Component {
             position: "absolute",
             top: "5px",
             right: "5px",
-            lineHeight: 0.5,
-            zIndex: 9999
+            lineHeight: 0.5
           }}
         >
           <MDBListGroupItem

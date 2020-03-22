@@ -537,7 +537,6 @@ export default class App extends Component {
           propTypes={SCATTERPLOT_CONTROLS}
           onChange={settings => this._updateLayerSettings(settings)}
         />
-
         <Navbar
           ref="child"
           bfs={this.bfs}
@@ -553,7 +552,6 @@ export default class App extends Component {
           handleStart={this.handleStart.bind(this)}
           handleEnd={this.handleEnd.bind(this)}
         />
-
         {hover.hoveredObject && (
           <div
             style={{
