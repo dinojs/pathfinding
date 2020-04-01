@@ -236,7 +236,6 @@ export default class App extends Component {
 
         if (!cost_so_far.has(next) || new_cost < cost_so_far.get(next)) {
           if (new_cost < cost_so_far.get(next)) pathCounter++;
-
           cost_so_far.set(next, new_cost);
           // let priority = new_cost;
           frontier.push(next, new_cost);
@@ -253,8 +252,8 @@ export default class App extends Component {
       );
     }
   };
-  heuristic = (a, b) => {
-    //Manhattan distance
+  manhattan = (a, b) => {
+    //Heuristic - Manhattan distance
     const graph = this.state.graph;
 
     return (
@@ -262,7 +261,16 @@ export default class App extends Component {
       Math.abs(graph[a].lat - graph[b].lat)
     );
   };
-
+  euclidian = (a, b) => {
+    const graph = this.state.graph;
+    let lat1 = (Math.PI * graph[a].lat) / 180;
+    let lat2 = (Math.PI * graph[b].lat) / 180;
+    let radtheta = (Math.PI * (graph[a].lon - graph[b].lon)) / 180;
+    return (
+      Math.sin(lat1) * Math.sin(lat2) +
+      Math.cos(lat1) * Math.cos(lat2) * Math.cos(radtheta)
+    );
+  };
   gbf = () => {
     //Greedy Best First Search
     const graph = this.state.graph;
@@ -289,7 +297,7 @@ export default class App extends Component {
 
       for (let next of adjNodes) {
         if (!path.has(next)) {
-          priority = this.heuristic(this.state.end, next); //Destination, currrent node
+          priority = this.euclidian(this.state.end, next); //Destination, currrent node
           frontier.push(next, priority);
           path.set(next, current);
         }
@@ -332,7 +340,7 @@ export default class App extends Component {
           "color: #fff; background-color:#b32400; border-radius: 5px; padding: 2px"
         );
         this.animateNodes(nodes, path);
-        console.log(`${nodes.length} nodes visted in ${Date.now() - timer} ms`);
+
         break;
       }
 
@@ -344,7 +352,8 @@ export default class App extends Component {
           if (new_cost < cost_so_far.get(next)) pathCounter++; //How many different paths analysed
 
           cost_so_far.set(next, new_cost);
-          priority = new_cost + this.heuristic(this.state.end, next);
+          priority = new_cost + this.manhattan(this.state.end, next) * 100000;
+          console.log(priority);
           frontier.push(next, priority);
           path.set(next, current);
         }
