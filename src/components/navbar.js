@@ -14,7 +14,7 @@ import {
   MDBNavbarNav,
   MDBNavbarToggler,
   MDBCollapse,
-  MDBContainer
+  MDBContainer,
 } from "mdbreact";
 import { BrowserRouter as Router } from "react-router-dom";
 
@@ -27,15 +27,12 @@ class navbar extends Component {
       description:
         "Select a STARTING/DESTINATION point by clicking on the nodes ⮕ Select an ALGORITHM ⮕ Click START. Keep me open if you want to learn more about algorithms while using the site",
       collapse: false,
-      nodes: null,
-      start: "Start",
-      end: "Start"
     };
     this.onClick = this.onClick.bind(this);
   }
   onClick() {
     this.setState({
-      collapse: !this.state.collapse
+      collapse: !this.state.collapse,
     });
   }
 
@@ -44,7 +41,7 @@ class navbar extends Component {
       algorithm: e.value,
       label: e.label,
       description: e.description,
-      URL: e.URL
+      URL: e.URL,
     });
   }
 
@@ -63,8 +60,8 @@ class navbar extends Component {
     let counter;
     db.collection("counter")
       .get()
-      .then(snapshot => {
-        snapshot.docs.forEach(doc => {
+      .then((snapshot) => {
+        snapshot.docs.forEach((doc) => {
           counter = doc.data().counter;
         });
         this.setState({ counter });
@@ -75,29 +72,35 @@ class navbar extends Component {
   }
 
   handleStart() {
-    switch (this.state.algorithm) {
-      case "bfs":
-        this.props.bfs();
-        this.incrementCounter(); //Total paths found all time
-        break;
-      case "dfs":
-        this.props.dfs();
-        this.incrementCounter();
-        break;
-      case "dks":
-        this.props.dks();
-        this.incrementCounter();
-        break;
-      case "gbf":
-        this.props.gbf();
-        this.incrementCounter();
-        break;
-      case "astar":
-        this.incrementCounter();
-        this.props.astar();
-        break;
-      default:
-        console.log("No algorithm selected!");
+    if (
+      typeof this.props.start === "number" && //start & end must be selected
+      typeof this.props.end === "number"
+    ) {
+      this.props.resetInterval(); //Avoid animation collision
+      switch (this.state.algorithm) {
+        case "bfs":
+          this.props.bfs();
+          this.incrementCounter(); //Total paths found all time
+          break;
+        case "dfs":
+          this.props.dfs();
+          this.incrementCounter();
+          break;
+        case "dks":
+          this.props.dks();
+          this.incrementCounter();
+          break;
+        case "gbf":
+          this.props.gbf();
+          this.incrementCounter();
+          break;
+        case "astar":
+          this.props.astar();
+          this.incrementCounter();
+          break;
+        default:
+          console.log("No algorithm selected!");
+      }
     }
   }
 
@@ -120,14 +123,13 @@ class navbar extends Component {
                 )}
                 <MDBCollapse isOpen={this.state.collapse} navbar>
                   <MDBNavbarNav
-                    // style={{ marginleft: "200px", marginRight: "200px" }}
-                    cetre
+                  // style={{ marginleft: "200px", marginRight: "200px" }}
                   >
                     <Select
                       options={locations}
                       value={this.props.start}
                       className="col-sm-3"
-                      onChange={e => this.props.handleStart(Number(e.value))}
+                      onChange={(e) => this.props.handleStart(Number(e.value))}
                       placeholder={this.props.start}
                     />
 
@@ -135,14 +137,14 @@ class navbar extends Component {
                       options={locations}
                       value={this.props.end}
                       className="col-sm-3"
-                      onChange={e => this.props.handleEnd(Number(e.value))}
+                      onChange={(e) => this.props.handleEnd(Number(e.value))}
                       placeholder={this.props.end}
                     />
 
                     <Select
                       options={algoInfo}
                       className="col-sm-3"
-                      onChange={e => this.handleAlgo(e)}
+                      onChange={(e) => this.handleAlgo(e)}
                       placeholder={this.state.algorithm}
                     />
                     <Button

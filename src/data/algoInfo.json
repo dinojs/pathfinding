@@ -19,7 +19,7 @@
   },
   {
     "value": "gbf",
-    "label": "Greedy Best First Search",
+    "label": "Greedy Best-First Search",
     "description":
       "Can be WEIGHTED and DOESN'T GUARANTEE the shortest path. A faster, more heuristic-heavy version of A*",
     "URL": "https://en.wikipedia.org/wiki/Best-first_search"

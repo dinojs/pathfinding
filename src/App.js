@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import {
   _MapContext as MapContext,
   NavigationControl,
-  StaticMap
+  StaticMap,
 } from "react-map-gl";
 import DeckGL from "deck.gl";
 import { renderLayers } from "./components/deckgl-layers";
@@ -25,12 +25,12 @@ export default class App extends Component {
         latitude: 40.711,
         zoom: 13.9,
         pitch: 55,
-        bearing: 45
+        bearing: 45,
       },
       hover: {
         x: 0,
         y: 0,
-        hoveredObject: null
+        hoveredObject: null,
       },
       graph: null,
       timestampCounter: null,
@@ -44,11 +44,11 @@ export default class App extends Component {
       settings: Object.keys(SCATTERPLOT_CONTROLS).reduce(
         (accu, key) => ({
           ...accu,
-          [key]: SCATTERPLOT_CONTROLS[key].value
+          [key]: SCATTERPLOT_CONTROLS[key].value,
         }),
         {}
       ),
-      style: "mapbox://styles/mapbox/dark-v10"
+      style: "mapbox://styles/mapbox/dark-v10",
     };
   }
 
@@ -65,14 +65,14 @@ export default class App extends Component {
     const {
       loopLength = this.state.timestampCounter, // unit corresponds to the timestamp in source data
       animationSpeed = loopLength / 2, // unit time per second
-      trailLength = loopLength
+      trailLength = loopLength,
     } = this.props;
     this.setState({ trailLength });
     const timestamp = Date.now() / 1000;
     const loopTime = loopLength / animationSpeed;
 
     this.setState({
-      time: ((timestamp % loopTime) / loopTime) * loopLength
+      time: ((timestamp % loopTime) / loopTime) * loopLength,
     });
     this._animationFrame = window.requestAnimationFrame(
       this.animatePath.bind(this)
@@ -106,12 +106,13 @@ export default class App extends Component {
       end: "Destination",
       cost: 0,
       speed: 0,
-      pathLength: 0,
-      runTime: 0
     });
-    clearInterval(this.state.interval); //Stop animation
+    this.resetInterval();
   };
 
+  resetInterval = () => {
+    clearInterval(this.state.interval); //Stop animation
+  };
   //////////////////////////////////
   bfs = () => {
     const graph = this.state.graph;
@@ -183,10 +184,10 @@ export default class App extends Component {
       }
 
       graph[current].adj
-        .filter(next => !frontier.includes(next))
-        .forEach(next => {
+        .filter((next) => !frontier.includes(next))
+        .forEach((next) => {
           stack.push(next);
-          path.set(Number(next), Number(current));
+          path.set(next, current);
         });
     }
     if (!stack.length) {
@@ -297,7 +298,7 @@ export default class App extends Component {
 
       for (let next of adjNodes) {
         if (!path.has(next)) {
-          priority = this.euclidian(this.state.end, next); //Destination, currrent node
+          priority = this.manhattan(this.state.end, next); //Destination, currrent node
           frontier.push(next, priority);
           path.set(next, current);
         }
@@ -353,7 +354,6 @@ export default class App extends Component {
 
           cost_so_far.set(next, new_cost);
           priority = new_cost + this.manhattan(this.state.end, next) * 100000;
-          console.log(priority);
           frontier.push(next, priority);
           path.set(next, current);
         }
@@ -368,7 +368,7 @@ export default class App extends Component {
       );
     }
   };
-  recustructPath = path => {
+  recustructPath = (path) => {
     let graph = this.state.graph;
     let current = this.state.end;
     let backwards = [];
@@ -396,12 +396,12 @@ export default class App extends Component {
     const tripToDisplay = [
       {
         trip,
-        timestamps: timestamp
-      }
+        timestamps: timestamp,
+      },
     ];
     this.setState({
       pathToDisplay,
-      tripToDisplay
+      tripToDisplay,
     });
     //Calculate total path distance
     for (let i = 0; i < backwards.length - 1; i++) {
@@ -418,7 +418,7 @@ export default class App extends Component {
 
   haversine = (a, b) => {
     //https://www.movable-type.co.uk/scripts/latlong.html
-    Math.radians = function(degrees) {
+    Math.radians = function (degrees) {
       return (degrees * Math.PI) / 180;
     };
 
@@ -441,21 +441,28 @@ export default class App extends Component {
     // let connected = []; //Retrive connected graph
     // nodes.forEach(e => connected.push(String(e[0])));
     // console.log(connected);
-    let visiting = [];
     this.setState({
-      nodesToDisplay: nodes[0]
+      nodesToDisplay: nodes[0],
     }); //Avoid page refresh
 
-    this.state.interval = setInterval(() => {
+    let visiting = []; //Array containing nodes that will be passed to scatterplot2
+    //Used to obtain a global refresh rate
+    let interval = setInterval(() => {
+      //At each iteration the state is updated
       this.setState({
+        //Concatenates the existing array of nodes with the successor, array passed to scatterplot (blue)
         nodesToDisplay: this.state.nodesToDisplay.concat([nodes[i]]),
-        visiting: this.state.nodesToDisplay.slice(-25)
+
+        //Array containing the last 25 nodes visited (orange), which appears on top of scatterplot (blue)
+        visiting: this.state.nodesToDisplay.slice(-25),
       });
 
       if ((visiting.length = 25)) {
+        //Makes sure scatterplot2 always has a size of 25
         visiting.shift();
       }
-      i++;
+      i++; //Increases by 1 at each iteration
+      //If the frontier has been fully visited, scatterplot will be the only one visible
       if (i === nodes.length) {
         clearInterval(this.state.interval);
         this.setState({ visiting: null }); //Reset current visiting animation
@@ -466,6 +473,7 @@ export default class App extends Component {
         }
       }
     }, 10);
+    this.setState({ interval });
   }
 
   ////////////////////////////////////////
@@ -483,7 +491,7 @@ export default class App extends Component {
         start: null,
         end: null,
         startMarker: [],
-        endMarker: []
+        endMarker: [],
       });
     }
 
@@ -500,12 +508,12 @@ export default class App extends Component {
         start: null,
         end: null,
         startMarker: [],
-        endMarker: []
+        endMarker: [],
       });
     }
   }
 
-  handleStart = e => {
+  handleStart = (e) => {
     let startMarker = [];
     if (this.state.end !== e) {
       this.setState({ start: e, startMarker: [] });
@@ -514,7 +522,7 @@ export default class App extends Component {
     }
   };
 
-  handleEnd = e => {
+  handleEnd = (e) => {
     let endMarker = [];
     if (this.state.start !== e) {
       this.setState({ end: e, endMarker: [] });
@@ -523,7 +531,7 @@ export default class App extends Component {
     }
   };
 
-  onStyleChange = style => {
+  onStyleChange = (style) => {
     this.setState({ style });
   };
 
@@ -537,14 +545,14 @@ export default class App extends Component {
     if (data.length === 0) {
       return null;
     }
-    const { hover, settings } = this.state;
+    const { hover } = this.state;
 
     return (
       <div>
         <LayerControls
           settings={this.state.settings}
           propTypes={SCATTERPLOT_CONTROLS}
-          onChange={settings => this._updateLayerSettings(settings)}
+          onChange={(settings) => this._updateLayerSettings(settings)}
         />
         <Navbar
           ref="child"
@@ -560,12 +568,13 @@ export default class App extends Component {
           end={this.state.end}
           handleStart={this.handleStart.bind(this)}
           handleEnd={this.handleEnd.bind(this)}
+          resetInterval={this.resetInterval}
         />
         {hover.hoveredObject && (
           <div
             style={{
               ...tooltipStyle,
-              transform: `translate(${hover.x}px, ${hover.y}px)`
+              transform: `translate(${hover.x}px, ${hover.y}px)`,
             }}
           >
             <div>{hover.label}</div>
@@ -580,9 +589,9 @@ export default class App extends Component {
             path,
             trip: this.state.tripToDisplay,
             time: this.state.time,
-            onHover: hover => this._onHover(hover),
-            onClick: click => this._onClick(click),
-            settings: this.state.settings
+            onHover: (hover) => this._onHover(hover),
+            onClick: (click) => this._onClick(click),
+            settings: this.state.settings,
           })}
           initialViewState={viewport}
           controller //Allows the user to move the map around
@@ -595,7 +604,7 @@ export default class App extends Component {
           />
           <div className="mapboxgl-ctrl-bottom-left">
             <NavigationControl
-              ref={ref => {
+              ref={(ref) => {
                 if (ref != null) {
                   ref._uiVersion = 2;
                 }
