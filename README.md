@@ -1,6 +1,6 @@
 # Pathfinding Visualiser
 
-### Web-App to visualise traditional pathfinding algorithms through animations based on React. http://path-finding.com/
+### Web-App to visualise traditional pathfinding algorithms through animations based on React. https://dinojs.github.io/pathfinding/
 
 ## Demo
 
